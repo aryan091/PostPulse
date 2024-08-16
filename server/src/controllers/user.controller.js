@@ -4,25 +4,25 @@ const apiResponse = require("../utils/apiResponse")
 const apiError = require("../utils/apiError")
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { decodeJwtToken , verifyToken } = require("../middlewares/verifyJwtToken")
+const { decodeJwtToken  } = require("../middlewares/verifyJwtToken")
 
 const registerUser = asyncHandler( async (req , res) => {
 
     try {
         // get user details from frontend
 
-        const { username, password } = req.body
+        const { name, email, password } = req.body
     
         // validation - not empty
     
         if (
-            [ username, password].some((field) => field?.trim() === "")
+            [ name,email, password].some((field) => field?.trim() === "")
         ) {
             return res.status(401).json({ success: false, message: "All Fields are required" })        }
     
-        // check if user already exists: username, email
+        // check if user already exists: email
     
-        const existedUser = await User.findOne({ username })
+        const existedUser = await User.findOne({ email })
     
         if(existedUser)
         {
@@ -31,7 +31,7 @@ const registerUser = asyncHandler( async (req , res) => {
     
         const hashedPassword = await bcrypt.hashSync(password, 10);
 
-        const user = new User({ username, password: hashedPassword });
+        const user = new User({ name,email, password: hashedPassword });
         await user.save();
             
         // remove password and refresh token field from response
@@ -63,14 +63,14 @@ const registerUser = asyncHandler( async (req , res) => {
 
 const loginUser = asyncHandler( async (req , res) => {
     try {
-        const { username, password } = req.body;
+        const { email, password } = req.body;
     
         if (
-            [ username, password].some((field) => field?.trim() === "")
+            [ email, password].some((field) => field?.trim() === "")
         ) {
             return res.status(401).json({ success: false, message: "All Fields are required" })        }
     
-        const user = await User.findOne({ username });
+        const user = await User.findOne({ email });
     
         if (!user) {
             return res.status(401).json({ success: false, message: "User not found! " })

@@ -1,6 +1,9 @@
 const express = require('express')
 const app = express()
 const mongoose = require("mongoose");
+const userRoute = require('./src/routes/user.routes')
+const postRoute = require('./src/routes/post.routes')
+
 const dotenv = require('dotenv').config()
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -12,6 +15,8 @@ app.use(express.json())
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use("/api/v1/user",userRoute)
+app.use("/api/v1/post",postRoute)
 
 
 app.get('/', (req, res) => {
