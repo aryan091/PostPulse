@@ -144,10 +144,39 @@ const updatePost = asyncHandler(async (req, res) => {
     }
 });
 
+const deletePost = asyncHandler(async (req, res) => {
+    try {
+        const postId = req.params.postId;
+
+        // Find the post by ID
+        const post = await Post.findById(postId);
+
+        if (!post) {
+            throw new apiError(404, "Post not found");
+        }
+
+        // Delete the post
+        await Post.findByIdAndDelete(postId);
+
+        return res.status(200).json(
+            new apiResponse(
+                200,
+                {},
+                "Post Deleted Successfully",
+                true
+            )
+        );
+    } catch (error) {
+        return res.status(401).json({ success: false, message: "Error while deleting Post" });
+    }
+});
+
+
 module.exports = {
     createPost,
     getMyPosts,
     getAllPosts,
     viewPost,
-    updatePost
+    updatePost,
+    deletePost
 };
