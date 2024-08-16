@@ -50,7 +50,7 @@ const registerUser = asyncHandler( async (req , res) => {
         // return res
     
         return res.status(201).json(
-            new apiResponse(200,"User registered Successfully", createdUser, true) 
+            new apiResponse(200,createdUser,"User registered Successfully", true) 
         )
     } catch (error) {
       
@@ -102,12 +102,13 @@ const loginUser = asyncHandler( async (req , res) => {
         .json(
             new apiResponse(
                 200,
-                "User logged in successfully",
                 {
-                    user : loggedInUser,
+                    userData : loggedInUser,
                     token:token
                 },
                 
+                "User logged in successfully",
+
                 true
             )
         )
