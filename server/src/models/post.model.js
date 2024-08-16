@@ -41,10 +41,7 @@ const postSchema = new mongoose.Schema(
       default: "Unknown",
     },
 
-    isEditable: {
-      type: Boolean,
-      default: false,
-    },
+ 
   },
   { timestamps: true }
 );

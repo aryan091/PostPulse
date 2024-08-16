@@ -20,7 +20,8 @@ const createPost = asyncHandler(async (req, res) => {
             heading,
             description,
             imageUrl,
-            addedBy: userId
+            addedBy: userId,
+            
         });
 
         const savedPost = await post.save();
@@ -34,6 +35,7 @@ const createPost = asyncHandler(async (req, res) => {
             )
         );
     } catch (error) {
+        console.log(error);
         return res.status(401).json({ success: false, message: "Error while Creating Post" });
     }
 });
@@ -52,10 +54,7 @@ const getMyPosts = asyncHandler(async (req, res) => {
             throw new apiError(401, "No user posts found");
         }
 
-        const updatedPosts = userPosts.map(post => ({
-            ...post.toObject(),
-            isEditable: true // Set isEditable to true for the current user's posts
-        })).sort((a, b) => b.createdAt - a.createdAt);
+        const updatedPosts = userPosts.sort((a, b) => b.createdAt - a.createdAt);
 
         return res.status(200).json(
             new apiResponse(
@@ -161,7 +160,7 @@ const deletePost = asyncHandler(async (req, res) => {
         return res.status(200).json(
             new apiResponse(
                 200,
-                {},
+                {post},
                 "Post Deleted Successfully",
                 true
             )
