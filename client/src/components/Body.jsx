@@ -4,6 +4,7 @@ import Login from './Login';
 import PostCard from './PostCard';
 import PostList from './PostList';
 import ProtectedRoute from './ProtectedRoute';
+import PostView from './PostView';
 
 const appRouter = createBrowserRouter([
   {

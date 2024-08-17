@@ -1,13 +1,17 @@
-import React from 'react';
-import { BG_CARD_URL , AVATAR_URL} from '../utils/constants';
 import { FcLike } from "react-icons/fc";
 import { FaBookmark, FaEdit } from "react-icons/fa";
+import { formatDate } from '../utils/helper';
 
 const PostCard = ({post}) => {
 
-    console.log("Post : ",post)
 
-    const { heading, description, imageUrl } = post
+
+    const { heading, description, imageUrl  , createdAt} = post
+
+
+    
+    const date = formatDate(createdAt)
+
     
 
   return (
@@ -29,21 +33,13 @@ const PostCard = ({post}) => {
 
       {/* Content */}
       <div className="relative z-10 bottom-2 left-0 right-0 p-4 bg-gradient-to-b from-black rounded-b-md">
-        <h1 className="text-[2rem] font-bold text-white mt-52  line-clamp-1 overflow-hidden">{heading}</h1>
-        <p className="text-white h-12 mt-2 line-clamp-2 overflow-hidden">
+        <h1 className="text-[2rem] font-bold text-white mt-64  line-clamp-1 overflow-hidden">{heading}</h1>
+        <p className="text-white h-12 mt-2 line-clamp-2 overflow-hidden font-semibold">
           {description}
         </p>
 
-        <div className="text-white flex justify-between mt-2">
-          <div className="flex flex-row gap-2 items-center ">
-            <div className='rounded-full w-12 h-12'>
-                <img src={AVATAR_URL} alt=""  className='rounded-full w-full h-full'/>
-                </div>            
-            <div className='text-white font-bold'>Aryan Daftari</div>
-          </div>
-        </div>
 
-        <p className='text-white font-semibold mt-2'>Published on 01 Jan 2023</p>
+        <p className='text-white font-semibold mt-2'>Published on {date}</p>
 
 
         <div className="text-white flex justify-between mt-2">
@@ -55,6 +51,8 @@ const PostCard = ({post}) => {
         </div>
 
       </div>
+
+
     </div>
   );
 };
