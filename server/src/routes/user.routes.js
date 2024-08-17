@@ -6,6 +6,7 @@ const { verifyToken } = require('../middlewares/verifyJwtToken.js')
 router.post( "/register", authController.registerUser )
 router.post( "/login", authController.loginUser )
 router.get('/profile' , verifyToken, authController.getUserProfile)
+router.get('/:userId' , verifyToken, authController.getUserById)
 
 
 

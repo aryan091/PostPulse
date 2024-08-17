@@ -158,8 +158,40 @@ const getUserProfile = asyncHandler( async (req, res) => {
     }
 })
 
+const getUserById = asyncHandler( async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const user = await User.findById(userId).select(
+            "-password "
+        );
+        
+        if (!user) {
+            return res.status(401).json({ success: false, message: "User Not found " })
+        }
+        
+        return res
+        .status(200)
+        .json(
+            new apiResponse
+            (
+                200, 
+                user,
+
+                "User fetched successfully", 
+
+                true
+            )
+        )
+    } catch (error) {
+        console.log(error)
+        return res.status(401).json({ success: false, message: "Error while fetching User profile " })  
+
+    }
+})
+
 module.exports = {
     registerUser,
     loginUser,
-    getUserProfile
+    getUserProfile,
+    getUserById
 }
