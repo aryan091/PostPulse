@@ -1,32 +1,75 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "./Header";
 import { BG_URL, AVATAR_URL } from "../utils/constants";
 import axios from "axios";
 import { formatDate } from "../utils/helper";
-const PostView = ({ post }) => {
-  const [name, setName] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
-  const { createdAt, heading, description, imageUrl, addedBy } = post;
-  const getUserDetails = async () => {
+import { useSelector } from "react-redux";
+import { useParams, useNavigate } from "react-router-dom";
+const PostView = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [post, setPost] = useState(null);
+
+  const navigate = useNavigate();
+  const { postId } = useParams();
+  const posts = useSelector((state) => state?.post?.posts);
+  const postFromStore = posts.find((post) => post._id === postId);
+
+  useEffect(() => {
+    if (postFromStore) {
+      setPost(postFromStore);
+    } else {
+      getPostById();
+    }
+  }, [postId, postFromStore]);
+
+  const getPostById = async () => {
     try {
       setLoading(true);
-      const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/user/${addedBy}`;
+      const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/view-post/${postId}`;
+      const token = localStorage.getItem("token");
+      axios.defaults.headers.common["Authorization"] = token;
+      const response = await axios.get(reqUrl);
+      setPost(response.data.data.post);
+    } catch (error) {
+      console.log(error);
+      navigate("/"); // Navigate to another page if the post is not found
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getUserDetails = async () => {
+    if (!post) return;
+    try {
+      setLoading(true);
+      const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/user/${post.addedBy}`;
       const token = localStorage.getItem("token");
       axios.defaults.headers.common["Authorization"] = token;
       const response = await axios.get(reqUrl);
       setName(response.data.data.name);
       setEmail(response.data.data.email);
     } catch (error) {
-      setLoading(false);
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     getUserDetails();
-  }, []);
+  }, [post]);
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!post) {
+    return null; // Or you can return a message or redirect the user
+  }
+
+  const { createdAt, heading, description, imageUrl } = post;
   const date = formatDate(createdAt);
 
   return (
@@ -42,16 +85,17 @@ const PostView = ({ post }) => {
         />
       </div>
 
-      <div className="relative z-10 bg-black bg-opacity-70 md:mx-auto h-screen  md:h-3/4 top-20 text-white w-screen md:w-4/5 shadow-2xl rounded-lg">
+      <div className="relative z-10 bg-black bg-opacity-70 md:mx-auto h-screen md:h-3/4 top-20 text-white w-screen md:w-4/5 shadow-2xl rounded-lg">
         <div className="w-full h-1/4 md:h-full flex flex-col md:flex-row">
           <img
             src={imageUrl}
             alt=""
-            className="w-full h-full object-fill rounded-lg"
+            className="w-full md:w-5/12 h-full object-fill rounded-lg"
           />
-          <div className="p-4 md:p-8">
-            <div className="text-white flex justify-between  mt-2">
-              <div className="flex flex-row gap-2 items-center ">
+
+          <div className="h-full w-full md:w-7/12 p-4 md:p-8">
+            <div className="text-white flex justify-between mt-2 gap-4 md:gap-0">
+              <div className="flex flex-row gap-2 items-center">
                 <div className="rounded-full w-10 h-10">
                   <img
                     src={AVATAR_URL}

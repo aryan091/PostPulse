@@ -4,7 +4,7 @@ import { formatDate } from '../utils/helper';
 
 const PostCard = ({post}) => {
 
-
+if(!post) return null
 
     const { heading, description, imageUrl  , createdAt} = post
 
