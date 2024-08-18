@@ -3,12 +3,15 @@ import { Provider } from 'react-redux';
 import { ToastContainer, Bounce } from 'react-toastify';
 import store from './store/store';
 import Body from './components/Body';
-import 'react-toastify/dist/ReactToastify.css'; // Make sure to import the CSS
+import 'react-toastify/dist/ReactToastify.css'; 
+import { UserContextProvider } from './context/UserContext';
 
 function App() {
   return (
     <>
+    <UserContextProvider>
       <Provider store={store}>
+
         <Body />
         <ToastContainer
           position="top-right"
@@ -24,6 +27,7 @@ function App() {
           transition={Bounce}
         />
       </Provider>
+    </UserContextProvider>
     </>
   );
 }

@@ -5,6 +5,7 @@ import axios from "axios";
 import { formatDate } from "../utils/helper";
 import { useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
+
 const PostView = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -73,7 +74,7 @@ const PostView = () => {
   const date = formatDate(createdAt);
 
   return (
-    <div className="relative h-screen overflow-hidden">
+    <div className="relative h-full overflow-hidden pb-28">
       <Header />
 
       {/* Background Image */}
@@ -81,50 +82,54 @@ const PostView = () => {
         <img
           src={BG_URL}
           alt="Bg-Image"
-          className="h-screen w-screen object-cover"
+          className="h-full w-screen object-cover"
         />
       </div>
 
-      <div className="relative z-10 bg-black bg-opacity-70 md:mx-auto h-screen md:h-3/4 top-20 text-white w-screen md:w-4/5 shadow-2xl rounded-lg">
-        <div className="w-full h-1/4 md:h-full flex flex-col md:flex-row">
-          <img
-            src={imageUrl}
-            alt=""
-            className="w-full md:w-5/12 h-full object-fill rounded-lg"
-          />
+      <div className="relative z-10 bg-black bg-opacity-70 md:mx-auto h-full md:h-3/4 top-20 text-white w-screen md:w-4/5 shadow-2xl rounded-lg">
+  <div className="w-full h-1/4 md:h-full flex flex-col">
+    <div className="w-full h-96"> {/* Set your desired height here, e.g., h-64 for a height of 16rem */}
+      <img
+        src={imageUrl}
+        alt=""
+        className="w-full h-full object-fill rounded-lg"
+      />
+    </div>
 
-          <div className="h-full w-full md:w-7/12 p-4 md:p-8">
-            <div className="text-white flex justify-between mt-2 gap-4 md:gap-0">
-              <div className="flex flex-row gap-2 items-center">
-                <div className="rounded-full w-10 h-10">
-                  <img
-                    src={AVATAR_URL}
-                    alt=""
-                    className="rounded-full w-full h-full"
-                  />
-                </div>
-                <div>
-                  <div className="text-white font-bold">{name}</div>
-                  <div className="text-white font-semibold">{email}</div>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-white font-semibold mt-2">
-                  Published on {date}
-                </p>
-              </div>
-            </div>
-
-            <h1 className="text-[2rem] font-bold text-white mt-4 md:mt-8">
-              {heading}
-            </h1>
-            <p className="text-white mt-2 md:mt-4 text-justify">
-              {description}
-            </p>
+    <div className="h-full w-full p-4 md:p-8">
+      <div className="text-white flex justify-between mt-2 gap-4 md:gap-0">
+        <div className="flex flex-row gap-2 items-center">
+          <div className="rounded-full w-10 h-10">
+            <img
+              src={AVATAR_URL}
+              alt=""
+              className="rounded-full w-full h-full"
+            />
+          </div>
+          <div>
+            <div className="text-white font-bold">{name}</div>
+            <div className="text-white font-semibold">{email}</div>
           </div>
         </div>
+
+        <div>
+          <p className="text-white font-semibold mt-2">
+            Published on {date}
+          </p>
+        </div>
       </div>
+
+      <h1 className="text-[2rem] font-bold text-white mt-4 md:mt-8">
+        {heading}
+      </h1>
+      <p className="text-white mt-2 md:mt-4 text-justify">
+        {description}
+      </p>
+    </div>
+  </div>
+</div>
+
+      
     </div>
   );
 };

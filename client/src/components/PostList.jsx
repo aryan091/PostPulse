@@ -69,7 +69,7 @@ const PostList = () => {
       {/* Post Cards */}
       <div className="relative z-10 flex flex-wrap justify-center gap-4 py-20 overflow-y-scroll h-full mt-16">
         {(showMyPosts ? myPosts : posts)?.map((post) => (
-          <Link to={`/post/${post._id}`} key={post._id}>
+          <Link to={`/post/${post?._id}`} key={post?._id}>
             <PostCard post={post} />
           </Link>
         ))}

@@ -143,8 +143,9 @@ const getUserProfile = asyncHandler( async (req, res) => {
             new apiResponse
             (
                 200, 
-                "User profile fetched successfully", 
                 user, 
+
+                "User profile fetched successfully", 
 
                 true
             )
