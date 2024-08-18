@@ -79,8 +79,13 @@ useEffect(() => {
         });
 
         localStorage.setItem("token", response.data.data.token);
-        dispatch(addUser({userInfo:response.data.data.userData , token : response.data.data.token}));
-        setLoading(false);
+        dispatch(addUser({
+          userInfo: response.data.data.userData, 
+          token: response.data.data.token
+        }));
+
+        toast.success(`${response.data.data.userData.name} Logged In Successfully!`);
+                setLoading(false);
         navigate('/posts');
       } catch (error) {
         setLoading(false);

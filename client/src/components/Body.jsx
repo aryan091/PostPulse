@@ -5,6 +5,7 @@ import PostCard from './PostCard';
 import PostList from './PostList';
 import ProtectedRoute from './ProtectedRoute';
 import PostView from './PostView';
+import CreatePost from './CreatePost';
 
 const appRouter = createBrowserRouter([
   {
@@ -23,7 +24,23 @@ const appRouter = createBrowserRouter([
     path: "/post/:postId",
     element: (
       <ProtectedRoute>
-        <PostCard />
+        <PostView />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/create",
+    element: (
+      <ProtectedRoute>
+        <PostList />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: "/my-posts",
+    element: (
+      <ProtectedRoute>
+        <PostList />
       </ProtectedRoute>
     )
   }

@@ -9,7 +9,6 @@ function App() {
   return (
     <>
       <Provider store={store}>
-        
         <Body />
         <ToastContainer
           position="top-right"
