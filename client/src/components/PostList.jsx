@@ -4,24 +4,45 @@ import { BG_URL } from '../utils/constants';
 import PostCard from './PostCard';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
-import { setPosts, setMyPosts } from '../slice/postSlice';
-import { Link, useLocation } from 'react-router-dom';
+import { setPosts, setMyPosts, setBookmarks } from '../slice/postSlice';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import CreatePost from './CreatePost';
 
 const PostList = () => {
   const dispatch = useDispatch();
   const posts = useSelector((state) => state.post.posts);
   const myPosts = useSelector((state) => state.post.myPosts);
+  const bookmarks = useSelector((state) => state.post.bookmarks); // Select bookmarks from state
   const location = useLocation();
+  const navigate = useNavigate();
   const [showMyPosts, setShowMyPosts] = useState(false);
+  const [showBookmarks, setShowBookmarks] = useState(false); // State for showing bookmarks
 
   useEffect(() => {
     if (location.pathname === "/my-posts") {
       fetchMyPosts();
+      setShowBookmarks(false); // Hide bookmarks when not on /bookmarks route
+    } else if (location.pathname === "/bookmarks") {
+      fetchMyBookmarks();
+      setShowBookmarks(true); // Show bookmarks when on /bookmarks route
     } else {
       fetchAllPosts();
+      setShowBookmarks(false); // Hide bookmarks when not on /bookmarks route
     }
   }, [dispatch, location.pathname]);
+
+  const fetchMyBookmarks = async () => {
+    try {
+      const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/user/bookmarks`;
+      const token = localStorage.getItem('token');
+      axios.defaults.headers.common['Authorization'] = token;
+      const response = await axios.post(reqUrl);
+      dispatch(setBookmarks(response.data.data.bookmarks));
+      setShowMyPosts(false); // Ensure "My Posts" state is not active
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const fetchAllPosts = async () => {
     try {
@@ -68,7 +89,7 @@ const PostList = () => {
 
       {/* Post Cards */}
       <div className="relative z-10 flex flex-wrap justify-center gap-4 py-20 overflow-y-scroll h-full mt-16">
-        {(showMyPosts ? myPosts : posts)?.map((post) => (
+        {(showMyPosts ? myPosts : showBookmarks ? bookmarks : posts)?.map((post) => (
           <Link to={`/post/${post?._id}`} key={post?._id}>
             <PostCard post={post} />
           </Link>
@@ -78,7 +99,6 @@ const PostList = () => {
       {location.pathname === "/create" && (
         <CreatePost closeModal={closeModal} />
       )}
-
     </div>
   );
 };
