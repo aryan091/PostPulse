@@ -10,12 +10,14 @@ import { useDispatch } from "react-redux";
 import { deletePost } from "../slice/postSlice";
 import { useNavigate } from "react-router-dom";
 import { FcLikePlaceholder } from "react-icons/fc";
-
+import { useState , useEffect} from "react";
 const PostCard = ({post}) => {
 
 if(!post) return null
 
-    const {_id, heading, description, imageUrl  , createdAt , addedBy} = post
+    const {_id, heading, description, imageUrl  , createdAt , addedBy , bookmarks} = post
+
+    const [isBookmarked, setIsBookmarked] = useState(false);
 
 
     
@@ -23,8 +25,16 @@ if(!post) return null
 
     const {id} = useContext(UserContext)
 
+
+
     const dispatch = useDispatch()
     const navigate = useNavigate()
+
+    useEffect(() => {
+      setIsBookmarked(bookmarks.includes(id));
+  }, [bookmarks, id]);
+
+
     const handleDelete = (event) => {
 
       event.preventDefault(); 
@@ -53,6 +63,25 @@ if(!post) return null
       });
     };
   
+    const handleBookmarkClick = (event) => {
+      event.preventDefault(); // Prevent default behavior
+      event.stopPropagation(); // Stop event from bubbling up
+      
+      try{
+
+        const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/user/bookmark/${_id}`;
+        const token = localStorage.getItem("token");
+        axios.defaults.headers.common["Authorization"] = token;
+        const response = axios.post(reqUrl);
+        setIsBookmarked(!isBookmarked);
+        toast.success("Post bookmarked successfully");
+      }
+      catch(error)
+      {
+        toast.error("Failed to bookmark post");
+        console.log(error);
+      }
+    };
 
     
 
@@ -95,9 +124,12 @@ if(!post) return null
           <div className="flex flex-row gap-2 items-center">
             <button><FcLike size={24}  /></button>
             <div>0</div>
+          </div >
+          <div onClick={(e)=>{handleBookmarkClick(e)}}>
+          <FaBookmark size={24} color={isBookmarked ? "blue" : "white"} />
+
           </div>
-          <button><FaBookmark size={24} color="white" /></button>
-        </div>
+          </div>
 
       </div>
 

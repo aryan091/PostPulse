@@ -1,3 +1,4 @@
+const e = require("express");
 const mongoose = require("mongoose");
 
 const postSchema = new mongoose.Schema(
@@ -19,14 +20,15 @@ const postSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        username: String,
+        email: String,
       },
     ],
     bookmarks: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        username: String,
+        email: String,
+
       },
     ],
 

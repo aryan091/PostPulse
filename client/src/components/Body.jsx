@@ -43,6 +43,14 @@ const appRouter = createBrowserRouter([
         <PostList />
       </ProtectedRoute>
     )
+  },
+  {
+    path: "/bookmarks",
+    element: (
+      <ProtectedRoute>
+        <PostList />
+      </ProtectedRoute>
+    )
   }
 ]);
 

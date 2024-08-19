@@ -5,7 +5,8 @@ const postSlice = createSlice(
         name: "post",
         initialState: {
             posts: [],
-            myPosts:[]
+            myPosts:[],
+            bookmarks:[]
         },
         reducers: {
             setPosts: (state, action) => {
@@ -23,6 +24,9 @@ const postSlice = createSlice(
                 state.posts = state.posts.map((post) => post._id === action.payload._id ? action.payload : post);
                 
             },
+            setBookmarks : (state, action) => {
+                state.bookmarks = action.payload;
+            },
             setMyPosts : (state, action) => {
                 state.myPosts = action.payload;
             }
@@ -30,5 +34,5 @@ const postSlice = createSlice(
     }
 );
 
-export const { setPosts , addPost, setMyPosts , deletePost , updatePost} = postSlice.actions;
+export const { setPosts , addPost, setMyPosts , deletePost , updatePost , setBookmarks} = postSlice.actions;
 export default postSlice.reducer;
