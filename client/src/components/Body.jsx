@@ -1,11 +1,9 @@
 import React from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Login from './Login';
-import PostCard from './PostCard';
 import PostList from './PostList';
 import ProtectedRoute from './ProtectedRoute';
 import PostView from './PostView';
-import CreatePost from './CreatePost';
 
 const appRouter = createBrowserRouter([
   {
@@ -56,10 +54,12 @@ const appRouter = createBrowserRouter([
 
 const Body = () => {
   return (
-    <div>
+       <div className="flex-grow">
       <RouterProvider router={appRouter} />
     </div>
+  
   );
+
 }
 
 export default Body;

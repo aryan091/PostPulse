@@ -1,12 +1,15 @@
-import React from 'react';
+import React,{useContext} from 'react';
 import { useDispatch } from 'react-redux';
 import { removeUser } from '../slice/userSlice';
 import { useNavigate, Link } from 'react-router-dom';
+import { UserContext } from '../context/UserContext';
 
 const Header = () => {
   const user = localStorage.getItem('token');
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const{ setId , setUsername, setIsUserLoggedIn} = useContext(UserContext)
+
 
   const handleCreateTaskClick = () => {
     navigate("/create");
@@ -18,6 +21,9 @@ const Header = () => {
 
   const handleLogOut = () => {
     localStorage.removeItem('token');
+    setIsUserLoggedIn(false);
+    setId(null);
+    setUsername(null);
     dispatch(removeUser());
     navigate('/');
   };
@@ -26,9 +32,10 @@ const Header = () => {
     navigate("/bookmarks");
   };
 
+
   return (
-    <div className='absolute top-0 left-0 p-4 mb-4 header w-screen  px-8 py-2 z-40 flex justify-between flex-col md:flex-row items-center bg-gradient-to-b from-black '>
-      <Link to='/'><h1 className='text-3xl font-bold text-white '>VerseVault</h1></Link>
+<div className='fixed top-0 left-0 w-full p-4 mb-4 z-40 flex justify-between flex-col md:flex-row items-center bg-gradient-to-b from-black to-transparent'>
+<Link to='/'><h1 className='text-3xl font-bold text-white '>VerseVault</h1></Link>
 
       { user && (
         <div className='flex justify-around gap-4'>
