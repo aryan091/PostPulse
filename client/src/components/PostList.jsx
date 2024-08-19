@@ -20,9 +20,11 @@ const PostList = () => {
 
   useEffect(() => {
     if (location.pathname === "/my-posts") {
+
       fetchMyPosts();
       setShowBookmarks(false); // Hide bookmarks when not on /bookmarks route
     } else if (location.pathname === "/bookmarks") {
+      console.log("Fetching bookmarks...");
       fetchMyBookmarks();
       setShowBookmarks(true); // Show bookmarks when on /bookmarks route
     } else {
@@ -69,6 +71,7 @@ const PostList = () => {
       console.log(error);
     }
   };
+  
 
   const closeModal = () => {
     navigate("/");

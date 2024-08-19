@@ -29,6 +29,12 @@ const postSlice = createSlice(
             setBookmarks : (state, action) => {
                 state.bookmarks = action.payload;
             },
+            removeBookmark: (state, action) => {
+                state.bookmarks = state.bookmarks.filter(
+                    (bookmark) => bookmark !== action.payload
+                );
+            },
+           
             setMyPosts : (state, action) => {
                 state.myPosts = action.payload;
             },
@@ -39,5 +45,5 @@ const postSlice = createSlice(
     }
 );
 
-export const { setPosts , addPost, setMyPosts , deletePost , updatePost , setBookmarks , updateTotalLikes} = postSlice.actions;
+export const { setPosts , addPost, setMyPosts , deletePost , updatePost , setBookmarks , updateTotalLikes,removeBookmark} = postSlice.actions;
 export default postSlice.reducer;

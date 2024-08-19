@@ -6,9 +6,10 @@ import { UserContext } from "../context/UserContext";
 import { RiDeleteBin6Fill } from "react-icons/ri";
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import { useDispatch } from "react-redux";
-import { deletePost ,updateTotalLikes  , updatePost} from "../slice/postSlice";
-import { setPost } from "../slice/viewPostSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { deletePost, updateTotalLikes, updatePost, setBookmarks , setPosts, setMyPosts} from "../slice/postSlice";
+import { setPost, setTotalLikes } from "../slice/viewPostSlice";
+
 import { useNavigate } from "react-router-dom";
 
 const PostCard = ({ post }) => {
@@ -16,27 +17,66 @@ const PostCard = ({ post }) => {
 
     useEffect(() => {
         dispatch(setPost(post));
+        dispatch(setTotalLikes(post.totalLikes));
     }, [post]);
 
-    
+   
+
+    const fetchAllPosts = async () => {
+      try {
+        const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/all-posts`;
+        const token = localStorage.getItem('token');
+        axios.defaults.headers.common['Authorization'] = token;
+        const response = await axios.get(reqUrl);
+        dispatch(setPosts(response.data.data.posts));
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const fetchMyPosts = async () => {
+      try {
+        const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/my-posts`;
+        const token = localStorage.getItem('token');
+        axios.defaults.headers.common['Authorization'] = token;
+        const response = await axios.get(reqUrl);
+        dispatch(setMyPosts(response.data.data.posts));
+      } catch (error) {
+        console.log(error);
+      }
+    };
+  
+    const fetchMyBookmarks = async () => {
+      try {
+        const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/user/bookmarks`;
+        const token = localStorage.getItem('token');
+        axios.defaults.headers.common['Authorization'] = token;
+        const response = await axios.post(reqUrl);
+        dispatch(setBookmarks(response.data.data.bookmarks));
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     const { _id, heading, description, imageUrl, createdAt, addedBy, bookmarks, likes } = post;
     const [isBookmarked, setIsBookmarked] = useState(false);
     const [isLiked, setIsLiked] = useState(false);
-    const [loading , setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-    const likesValue = post?.totalLikes
+    const likesValue = post?.totalLikes;
 
     const date = formatDate(createdAt);
     const { id } = useContext(UserContext);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const allBookmarks = useSelector((state) => state.post.bookmarks);
 
     useEffect(() => {
-      if (bookmarks && likes && id) {
-          setIsBookmarked(bookmarks.includes(id));
-          setIsLiked(likes.includes(id));
-      }
-  }, [bookmarks, likes, id]);
+        if (bookmarks && likes && id) {
+            setIsBookmarked(bookmarks.includes(id));
+            setIsLiked(likes.includes(id));
+        }
+    }, [bookmarks, likes, id]);
 
     const handleDelete = async (event) => {
         event.preventDefault();
@@ -47,6 +87,7 @@ const PostCard = ({ post }) => {
             axios.defaults.headers.common["Authorization"] = token;
             await axios.delete(reqUrl);
             dispatch(deletePost(_id));
+            await fetchMyPosts();
             toast.success("Post deleted successfully");
         } catch (error) {
             console.log(error);
@@ -69,8 +110,13 @@ const PostCard = ({ post }) => {
             const token = localStorage.getItem("token");
             axios.defaults.headers.common["Authorization"] = token;
             await axios.post(reqUrl);
+            const updatedBookmarks = isBookmarked
+                ? allBookmarks.filter(bookmark => bookmark !== _id)
+                : [...allBookmarks, _id];
             setIsBookmarked(!isBookmarked);
-            toast.success("Post bookmarked successfully");
+            dispatch(setBookmarks(updatedBookmarks));
+            await fetchMyBookmarks();
+            toast.success(isBookmarked ? "Post removed from bookmarks" : "Post bookmarked successfully");
         } catch (error) {
             toast.error("Failed to bookmark post");
             console.log(error);
@@ -81,15 +127,17 @@ const PostCard = ({ post }) => {
         event.preventDefault();
         event.stopPropagation();
         try {
-          setLoading(true);
+            setLoading(true);
             const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/like/${_id}`;
             const token = localStorage.getItem("token");
             axios.defaults.headers.common["Authorization"] = token;
             const response = await axios.post(reqUrl);
-            dispatch(updateTotalLikes({ _id, totalLikes: response.data.data.post.totalLikes  }));
+            dispatch(updateTotalLikes({ _id, totalLikes: response.data.data.post.totalLikes }));
             setIsLiked(!isLiked);
             dispatch(updatePost(response.data.data.post));
-            toast.success("Post liked successfully");
+            await Promise.all([ fetchMyPosts(),fetchMyBookmarks()]);
+
+            (isLiked) ?   toast.success('Story Unliked Successfully!') : toast.success('Story Liked Successfully!')
             setLoading(false);
         } catch (error) {
             setLoading(false);
@@ -97,9 +145,6 @@ const PostCard = ({ post }) => {
             console.log(error);
         }
     };
-
-    
-    
 
     return (
         <div className="relative h-[460px] w-[20rem] md:w-[30rem] rounded-md overflow-hidden group shadow-2xl">
