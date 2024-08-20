@@ -1,39 +1,17 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import axios from 'axios';
+import React, { useRef, useState } from 'react';
 import Header from './Header';
+import Footer from './Footer';
 import { BG_URL } from '../utils/constants';
 import { checkValidData } from '../utils/validate';
-import { addUser } from '../slice/userSlice';
-import Footer from './Footer';
-import { UserContext } from '../context/UserContext';
+import { useAuth } from '../hooks/useAuth'; // Import the custom hook
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
   const email = useRef(null);
   const password = useRef(null);
   const name = useRef(null);
 
-  const token = localStorage.getItem('token');
-
-  const{ setId , setUsername, setIsUserLoggedIn} = useContext(UserContext)
-
-useEffect(() => {
-  if (token) {
-    navigate('/posts');
-  }
-  else{
-    navigate('/');
-  }
-}, [token, navigate]);
+  const { register, login, loading, errorMessage } = useAuth(); // Use the custom hook
 
   const toggleSignInForm = () => {
     setIsSignInForm(!isSignInForm);
@@ -47,77 +25,31 @@ useEffect(() => {
       message = checkValidData(name.current.value, email.current.value, password.current.value, isSignInForm);
     }
 
-    setErrorMessage(message);
-    if (message) return;
+    if (message) {
+      setErrorMessage(message);
+      return;
+    }
 
     if (!isSignInForm) {
-      // Sign Up
-      try {
-        setLoading(true);
-        const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/user/register`;
-        const response = await axios.post(reqUrl, {
-          name: name.current.value,
-          email: email.current.value,
-          password: password.current.value
-        });
-
-        toast.success(`${response.data.data.name} Registered Successfully!`);
-        name.current.value = "";
-        email.current.value = "";
-        password.current.value = "";
-        setIsSignInForm(true);
-        setLoading(false);
-      } catch (error) {
-        setLoading(false);
-        toast.error(error.response.data.message);
-        setErrorMessage(error.response.data.message);
-      }
+      await register(name.current.value, email.current.value, password.current.value);
     } else {
-      // Sign In
-      try {
-        setLoading(true);
-        const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/user/login`;
-        const response = await axios.post(reqUrl, {
-          email: email.current.value,
-          password: password.current.value
-        });
-
-        localStorage.setItem("token", response.data.data.token);
-        dispatch(addUser({
-          userInfo: response.data.data.userData, 
-          token: response.data.data.token
-        }));
-
-        setId(response.data.data.userData._id)
-        setUsername(response.data.data.userData.name)
-        setIsUserLoggedIn(true)
-
-        toast.success(`${response.data.data.userData.name} Logged In Successfully!`);
-                setLoading(false);
-        navigate('/posts');
-      } catch (error) {
-        setLoading(false);
-        toast.error(error?.response?.data?.message);
-        setErrorMessage(error?.response?.data?.message);
-      }
+      await login(email.current.value, password.current.value);
     }
   };
 
   return (
-    <>
-
-<div className="min-h-screen w-full overflow-x-hidden">
+    <div className="min-h-screen w-full overflow-x-hidden">
       <Header />
 
       <div className="fixed inset-0 z-0 w-full h-full">
-      <img
+        <img
           src={BG_URL}
           alt="Bg-Image"
           className="w-full h-full object-cover"
-          />
+        />
       </div>
 
-      <form onSubmit={(e) => e.preventDefault()} className={`relative p-10 w-full md:w-3/12 my-28 bg-black  md:my-16 mx-auto z-20 right-0 left-0 text-white bg-opacity-50 rounded-lg`}>
+      <form onSubmit={(e) => e.preventDefault()} className="relative p-10 w-full md:w-3/12 my-28 bg-black  md:my-16 mx-auto z-20 right-0 left-0 text-white bg-opacity-50 rounded-lg">
         <h1 className="font-bold text-3xl py-4">{isSignInForm ? 'Sign In' : 'Sign Up'}</h1>
 
         {!isSignInForm && (
@@ -144,7 +76,7 @@ useEffect(() => {
 
         <p className="text-red-500 text-center font-semibold py-2">{errorMessage}</p>
 
-        <button className="p-4 my-6 bg-red-700 w-full rounded-lg" onClick={handleButtonClick}>
+        <button className="p-4 my-6 bg-red-700 w-full rounded-lg" onClick={handleButtonClick} disabled={loading}>
           {isSignInForm ? 'Sign In' : 'Sign Up'}
         </button>
 
@@ -156,16 +88,8 @@ useEffect(() => {
         </p>
       </form>
 
-
       <Footer />
-
-
     </div>
-
-
-  
-
-    </>
   );
 }
 
