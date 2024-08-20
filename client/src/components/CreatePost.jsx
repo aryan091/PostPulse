@@ -1,28 +1,21 @@
-import React, { useRef,useEffect, useState } from "react";
-import { toast } from 'react-toastify';
-import axios from 'axios';
+import React, { useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { addPost  , updatePost} from "../slice/postSlice";
-import { useDispatch } from "react-redux";
+import usePostApi from "../hooks/usePostApi"; // Import the custom hook
 
 const CreatePost = ({ closeModal }) => {
   const titleRef = useRef(null);
   const descriptionRef = useRef(null);
   const imageUrlRef = useRef(null);
-  const [error, setError] = useState("");
   const { state } = useLocation();
-
-
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
+  const { savePost, error, setError } = usePostApi(); // Use the custom hook
 
   useEffect(() => {
     if (state?.post) {
-        titleRef.current.value = state?.post?.heading;
-        descriptionRef.current.value = state?.post?.description;
-        imageUrlRef.current.value = state?.post?.imageUrl;
-
+      titleRef.current.value = state?.post?.heading;
+      descriptionRef.current.value = state?.post?.description;
+      imageUrlRef.current.value = state?.post?.imageUrl;
     }
   }, [state?.post]);
 
@@ -37,8 +30,6 @@ const CreatePost = ({ closeModal }) => {
     return true;
   };
 
-
-
   const handleSavePost = async (event) => {
     event.preventDefault();
 
@@ -46,51 +37,15 @@ const CreatePost = ({ closeModal }) => {
       setError("All fields are required");
     } else {
       setError("");
-      const newTask = {
+      const post = {
         heading: titleRef.current.value,
         description: descriptionRef.current.value,
         imageUrl: imageUrlRef.current.value,
       };
 
-      if(state?.post){
-
-        try {
-            const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/update/${state?.post?._id}`;
-            const token = localStorage.getItem("token");
-            axios.defaults.headers.common["Authorization"] = token;
-            const response = await axios.put(reqUrl, newTask);
-            console.log(response.data.post);
-            dispatch(updatePost(response.data.data.post));
-            navigate("/posts");
-            toast.success("Post updated successfully");
-    
-          } catch (error) {
-            console.log(error);
-            toast.error("Failed to update post");   
-          }
-
-      }
-      else{
-        try {
-            const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/create`;
-            const token = localStorage.getItem("token");
-            axios.defaults.headers.common["Authorization"] = token;
-            const response = await axios.post(reqUrl, newTask);
-            console.log(response.data.post);
-            dispatch(addPost(response.data.post));
-            navigate("/posts");
-            toast.success("Post created successfully");
-    
-          } catch (error) {
-            console.log(error);
-            toast.error("Failed to create post");
-          }
-
-      }
-
-      
-
+      await savePost(post, state?.post?._id); // Use savePost from the hook
       closeModal();
+      navigate("/posts");
     }
   };
 
@@ -139,7 +94,6 @@ const CreatePost = ({ closeModal }) => {
             </div>
           </div>
 
-          {/* Error message display */}
           {error && (
             <div className="text-red-500 text-sm font-bold text-center mb-4">
               {error}
@@ -159,8 +113,8 @@ const CreatePost = ({ closeModal }) => {
                 type="submit"
                 className="task-save w-40 h-11 bg-transparent border border-solid border-white text-white py-2 px-4 rounded-xl focus:outline-none focus:shadow-outline shadow-lg font-bold"
               >
-                {state?.post ? "Update " : "Create "}
-                </button>
+                {state?.post ? "Update" : "Create"}
+              </button>
             </div>
           </div>
         </form>

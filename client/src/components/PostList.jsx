@@ -68,7 +68,7 @@ const PostList = () => {
             ))
           ) : (
             <div className="relative -top-32 flex items-center justify-center w-screen h-[20.20rem] bg-gradient-to-b from-black">
-              <p className="text-white text-4xl font-bold ">
+              <p className="text-white text-lg md:text-4xl font-bold ">
                 {showMyPosts
                   ? "You haven't created any posts yet."
                   : showBookmarks
