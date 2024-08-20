@@ -5,6 +5,7 @@ import { formatDate } from "../utils/helper";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import Footer from "./Footer";
+import ShimmerView from "./ShimmerView"; // Import the ShimmerView component
 import useFetchUser from "../hooks/useFetchUser";
 
 const PostView = () => {
@@ -13,11 +14,12 @@ const PostView = () => {
   const post = posts.find((post) => post._id === postId);
 
   // Use custom hook to fetch user details
-  const { user, loading } = useFetchUser(post?.addedBy);
+  const { user, loading: userLoading } = useFetchUser(post?.addedBy);
+  const postLoading = !post || userLoading;
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  // if (postLoading) {
+  //   return <ShimmerView />;
+  // }
 
   if (!post) {
     return null; // Or you can return a message or redirect the user
@@ -40,7 +42,13 @@ const PostView = () => {
           />
         </div>
 
-        <div className="relative z-10 bg-black bg-opacity-70 md:mx-auto h-full md:h-3/4 top-20 text-white w-screen md:w-4/5 shadow-2xl rounded-lg">
+        {
+          postLoading ? (
+            <ShimmerView />
+          )
+          :
+          (
+<div className="relative z-10 bg-black bg-opacity-70 md:mx-auto h-full md:h-3/4 top-20 text-white w-screen md:w-4/5 shadow-2xl rounded-lg">
           <div className="w-full h-1/4 md:h-full flex flex-col">
             <div className="w-full h-96">
               <img
@@ -82,6 +90,11 @@ const PostView = () => {
             </div>
           </div>
         </div>
+          )
+        }
+
+        
+
       </div>
       <Footer />
     </>
