@@ -5,7 +5,21 @@ import { BG_URL } from '../utils/constants';
 import { checkValidData } from '../utils/validate';
 import { useAuth } from '../hooks/useAuth'; 
 import { useNavigate } from 'react-router-dom';
+import { PropagateLoader } from 'react-spinners'; // Import the spinner component
 
+const loadingSpinnerStyles = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: "100vw",
+  height: "100vh",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 9999,
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  transform:"none"  
+}
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
   const email = useRef(null);
@@ -14,6 +28,7 @@ const Login = () => {
 
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
+
 
   useEffect(() => {
     if (token) {
@@ -92,6 +107,10 @@ const Login = () => {
         <button className="p-4 my-6 bg-red-700 w-full rounded-lg" onClick={handleButtonClick} disabled={loading}>
           {isSignInForm ? 'Sign In' : 'Sign Up'}
         </button>
+
+        {loading && <PropagateLoader color="#fffff" 
+                      cssOverride={loadingSpinnerStyles}
+                      />} {/* Show spinner only when loading */}
 
         <p className="text-neutral-300 py-4">
           {isSignInForm ? 'New to VerseVault?' : 'Already have an account?'}{' '}

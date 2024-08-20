@@ -10,7 +10,6 @@ const verifyToken = (req, res, next) => {
 
         const decode = jwt.verify(headerToken, process.env.JWT_SECRET_KEY);
         req.userId = decode.userId;
-        console.log(req.userId);
         next();
     } catch (error) {
         console.log(error);
@@ -23,14 +22,12 @@ const decodeJwtToken = (authHeader) => {
         
         if (!authHeader) {
             console.log("Authorization header is missing.");
-            return;
-        }else
-        {
-            console.log("Authorization header is present.",authHeader);
-        }
 
+            return res.status(401).json({ message: "Unauthorized access" });
+
+
+        }
         const decode = jwt.verify(authHeader, process.env.JWT_SECRET_KEY);
-        console.log("Decoded token:", decode);
 
         const userId = decode.userId;
         if (!userId) {
