@@ -1,15 +1,28 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState , useEffect } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import { BG_URL } from '../utils/constants';
 import { checkValidData } from '../utils/validate';
-import { useAuth } from '../hooks/useAuth'; // Import the custom hook
+import { useAuth } from '../hooks/useAuth'; 
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
   const email = useRef(null);
   const password = useRef(null);
   const name = useRef(null);
+
+  const token = localStorage.getItem('token');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (token) {
+      navigate('/posts');
+    }
+    else{
+      navigate('/');
+    }
+  }, [token, navigate]);
 
   const { register, login, loading, errorMessage } = useAuth(); // Use the custom hook
 
