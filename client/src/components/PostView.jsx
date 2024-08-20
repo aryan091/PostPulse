@@ -1,43 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Header from "./Header";
 import { BG_URL, AVATAR_URL } from "../utils/constants";
-import axios from "axios";
 import { formatDate } from "../utils/helper";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import Footer from "./Footer";
+import useFetchUser from "../hooks/useFetchUser";
 
 const PostView = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(true);
-
   const { postId } = useParams();
   const posts = useSelector((state) => state?.post?.posts);
   const post = posts.find((post) => post._id === postId);
 
-
-  const getUserDetails = async () => {
-    if (!post) return;
-    try {
-      setLoading(true);
-      const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/user/${post.addedBy}`;
-      const token = localStorage.getItem("token");
-      axios.defaults.headers.common["Authorization"] = token;
-      const response = await axios.get(reqUrl);
-      setName(response.data.data.name);
-      setEmail(response.data.data.email);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false); // Ensure loading is false after fetch attempt
-    }
-  };
-
-  useEffect(() => {
-    console.log("getUserDetails rendering : ", post);
-    getUserDetails();
-  }, []); // Only run when post changes
+  // Use custom hook to fetch user details
+  const { user, loading } = useFetchUser(post?.addedBy);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -85,8 +61,8 @@ const PostView = () => {
                     />
                   </div>
                   <div>
-                    <div className="text-white font-bold">{name}</div>
-                    <div className="text-white font-semibold">{email}</div>
+                    <div className="text-white font-bold">{user.name}</div>
+                    <div className="text-white font-semibold">{user.email}</div>
                   </div>
                 </div>
 

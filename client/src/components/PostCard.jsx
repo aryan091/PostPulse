@@ -11,11 +11,24 @@ import { deletePost, updateTotalLikes, updatePost, setBookmarks , setPosts, setM
 import { setPost } from "../slice/viewPostSlice";
 
 import { useNavigate } from "react-router-dom";
+import useFetchBookmarks from "../hooks/useFetchBookmarks";
+import useFetchMyPosts from "../hooks/useFetchMyPosts";
 
 const PostCard = ({ post , userId}) => {
     if (!post) return null;
 
     console.log("id in card : ", userId)
+
+    const [isBookmarked, setIsBookmarked] = useState(false);
+    const [isLiked, setIsLiked] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const likesValue = post?.totalLikes;
+
+    const { id } = useContext(UserContext);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const allBookmarks = useSelector((state) => state.post.bookmarks);
     
     useEffect(() => {
         dispatch(setPost(post));
@@ -54,16 +67,7 @@ const PostCard = ({ post , userId}) => {
       
 
     const { _id, heading, description, imageUrl, createdAt, addedBy, bookmarks, likes } = post;
-    const [isBookmarked, setIsBookmarked] = useState(false);
-    const [isLiked, setIsLiked] = useState(false);
-
-    const likesValue = post?.totalLikes;
-
-    const date = formatDate(createdAt);
-    const { id } = useContext(UserContext);
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const allBookmarks = useSelector((state) => state.post.bookmarks);
+  
 
     useEffect(() => {
         console.log(id)
@@ -78,6 +82,7 @@ const PostCard = ({ post , userId}) => {
     
       
     
+      const date = formatDate(createdAt);
 
 
 
@@ -118,7 +123,9 @@ const PostCard = ({ post , userId}) => {
                 : [...allBookmarks, _id];
             setIsBookmarked(!isBookmarked);
             dispatch(setBookmarks(updatedBookmarks));
-            await fetchMyBookmarks();
+             await fetchMyBookmarks();
+
+            
             toast.success(isBookmarked ? "Post removed from bookmarks" : "Post bookmarked successfully");
         } catch (error) {
             toast.error("Failed to bookmark post");
@@ -149,7 +156,7 @@ const PostCard = ({ post , userId}) => {
         }
     };
 
-
+   
  
 
     return (
