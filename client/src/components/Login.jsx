@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -7,6 +7,8 @@ import Header from './Header';
 import { BG_URL } from '../utils/constants';
 import { checkValidData } from '../utils/validate';
 import { addUser } from '../slice/userSlice';
+import Footer from './Footer';
+import { UserContext } from '../context/UserContext';
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
@@ -21,6 +23,8 @@ const Login = () => {
   const name = useRef(null);
 
   const token = localStorage.getItem('token');
+
+  const{ setId , setUsername, setIsUserLoggedIn} = useContext(UserContext)
 
 useEffect(() => {
   if (token) {
@@ -84,6 +88,10 @@ useEffect(() => {
           token: response.data.data.token
         }));
 
+        setId(response.data.data.userData._id)
+        setUsername(response.data.data.userData.name)
+        setIsUserLoggedIn(true)
+
         toast.success(`${response.data.data.userData.name} Logged In Successfully!`);
                 setLoading(false);
         navigate('/posts');
@@ -96,12 +104,20 @@ useEffect(() => {
   };
 
   return (
-    <div>
+    <>
+
+<div className="min-h-screen w-full overflow-x-hidden">
       <Header />
-      <div className="absolute">
-        <img src={BG_URL} alt="Bg-Image" className='h-screen w-screen object-cover' />
+
+      <div className="fixed inset-0 z-0 w-full h-full">
+      <img
+          src={BG_URL}
+          alt="Bg-Image"
+          className="w-full h-full object-cover"
+          />
       </div>
-      <form onSubmit={(e) => e.preventDefault()} className={`absolute p-10 w-full md:w-3/12 my-28 bg-black  md:my-16 mx-auto right-0 left-0 text-white bg-opacity-50 rounded-lg`}>
+
+      <form onSubmit={(e) => e.preventDefault()} className={`relative p-10 w-full md:w-3/12 my-28 bg-black  md:my-16 mx-auto z-20 right-0 left-0 text-white bg-opacity-50 rounded-lg`}>
         <h1 className="font-bold text-3xl py-4">{isSignInForm ? 'Sign In' : 'Sign Up'}</h1>
 
         {!isSignInForm && (
@@ -139,7 +155,17 @@ useEffect(() => {
           </span>
         </p>
       </form>
+
+
+      <Footer />
+
+
     </div>
+
+
+  
+
+    </>
   );
 }
 

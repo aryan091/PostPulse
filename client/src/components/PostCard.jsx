@@ -8,16 +8,17 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { useDispatch, useSelector } from "react-redux";
 import { deletePost, updateTotalLikes, updatePost, setBookmarks , setPosts, setMyPosts} from "../slice/postSlice";
-import { setPost, setTotalLikes } from "../slice/viewPostSlice";
+import { setPost } from "../slice/viewPostSlice";
 
 import { useNavigate } from "react-router-dom";
 
-const PostCard = ({ post }) => {
+const PostCard = ({ post , userId}) => {
     if (!post) return null;
 
+    console.log("id in card : ", userId)
+    
     useEffect(() => {
         dispatch(setPost(post));
-        dispatch(setTotalLikes(post.totalLikes));
     }, [post]);
 
    
@@ -61,7 +62,6 @@ const PostCard = ({ post }) => {
     const { _id, heading, description, imageUrl, createdAt, addedBy, bookmarks, likes } = post;
     const [isBookmarked, setIsBookmarked] = useState(false);
     const [isLiked, setIsLiked] = useState(false);
-    const [loading, setLoading] = useState(false);
 
     const likesValue = post?.totalLikes;
 
@@ -72,11 +72,18 @@ const PostCard = ({ post }) => {
     const allBookmarks = useSelector((state) => state.post.bookmarks);
 
     useEffect(() => {
-        if (bookmarks && likes && id) {
-            setIsBookmarked(bookmarks.includes(id));
-            setIsLiked(likes.includes(id));
+    
+        if (id !== null && id !== undefined && bookmarks && likes) {
+          setIsBookmarked(bookmarks.includes(id));
+          setIsLiked(likes.includes(id));
         }
-    }, [bookmarks, likes, id]);
+      }, [id, bookmarks, likes]);
+    
+    
+      
+    
+
+
 
     const handleDelete = async (event) => {
         event.preventDefault();
@@ -145,6 +152,9 @@ const PostCard = ({ post }) => {
             console.log(error);
         }
     };
+
+
+ 
 
     return (
         <div className="relative h-[460px] w-[20rem] md:w-[30rem] rounded-md overflow-hidden group shadow-2xl">

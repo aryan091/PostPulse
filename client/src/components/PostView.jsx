@@ -5,6 +5,7 @@ import axios from "axios";
 import { formatDate } from "../utils/helper";
 import { useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
+import Footer from "./Footer";
 
 const PostView = () => {
   const [name, setName] = useState("");
@@ -74,6 +75,8 @@ const PostView = () => {
   const date = formatDate(createdAt);
 
   return (
+    <>
+    
     <div className="relative h-full overflow-hidden pb-28">
       <Header />
 
@@ -131,6 +134,8 @@ const PostView = () => {
 
       
     </div>
+    <Footer />
+    </>
   );
 };
 
