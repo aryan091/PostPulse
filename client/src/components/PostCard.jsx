@@ -72,6 +72,8 @@ const PostCard = ({ post , userId}) => {
     const allBookmarks = useSelector((state) => state.post.bookmarks);
 
     useEffect(() => {
+        console.log(id)
+        
     
         if (id !== null && id !== undefined && bookmarks && likes) {
           setIsBookmarked(bookmarks.includes(id));

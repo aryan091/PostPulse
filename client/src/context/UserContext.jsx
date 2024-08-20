@@ -11,7 +11,32 @@ function UserContextProvider({ children }) {
 
 
 
- 
+  // Run this effect only when isUserLoggedIn changes to true
+  useEffect(() => {
+    const getUser = async () => {
+  
+      setLoading(true);
+      try {
+        const token = localStorage.getItem("token");
+        if (token) {
+          axios.defaults.headers.common["Authorization"] = token;
+          const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/profile`);
+          setUsername(response.data.data.name);
+          setId(response.data.data._id);
+          console.log("Fetched User ID:", response.data.data._id); // Add this line
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error.response ? error.response.data.message : error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    getUser();
+  }, []);
+  
+
+
   return (
     <UserContext.Provider value={{ username, setUsername, id, setId, isUserLoggedIn, setIsUserLoggedIn, loading , setLoading }}>
       {children}

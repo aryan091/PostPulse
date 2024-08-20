@@ -71,14 +71,22 @@ const getMyPosts = asyncHandler(async (req, res) => {
 
 const getAllPosts = asyncHandler(async (req, res) => {
     try {
-        // Fetch all posts from the database
-        const allPosts = await Post.find().sort({ createdAt: -1 });
+        const { title } = req.query;
+
+        let filter = {};
+        if (title) {
+            // Use a regular expression to match the title (case-insensitive)
+            filter = { heading: { $regex: title, $options: 'i' } };
+        }
+
+        // Fetch posts from the database with the filter applied
+        const allPosts = await Post.find(filter).sort({ createdAt: -1 });
 
         return res.status(200).json(
             new apiResponse(
                 200,
                 { posts: allPosts },
-                "All Posts Fetched Successfully",
+                "Posts Fetched Successfully",
                 true
             )
         );
@@ -86,6 +94,7 @@ const getAllPosts = asyncHandler(async (req, res) => {
         return res.status(401).json({ success: false, message: "Error while fetching Posts" });
     }
 });
+
 
 const viewPost = asyncHandler(async (req, res) => {
     try {
