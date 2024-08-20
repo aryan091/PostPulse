@@ -42,30 +42,41 @@ const createPost = asyncHandler(async (req, res) => {
 
 const getMyPosts = asyncHandler(async (req, res) => {
     try {
+        const { title } = req.query;
+
+        // Decode the JWT token to get the user ID
         const userId = decodeJwtToken(req.headers["authorization"]);
 
         if (!userId) {
             throw new apiError(401, "User not found");
         }
 
-        const userPosts = await Post.find({ addedBy: userId });
-
-        if (!userPosts) {
-            throw new apiError(401, "No user posts found");
+        // Create a filter object to find posts added by the user and optionally filter by title
+        let filter = { addedBy: userId };
+        if (title) {
+            // Use a regular expression to match the title (case-insensitive)
+            filter.heading = { $regex: title, $options: "i" };
         }
 
-        const updatedPosts = userPosts.sort((a, b) => b.createdAt - a.createdAt);
+        // Query the database for the user's posts with the filter applied
+        const userPosts = await Post.find(filter).sort({ createdAt: -1 });
 
+        if (!userPosts || userPosts.length === 0) {
+            throw new apiError(404, "No user posts found");
+        }
+
+        // Send the response with the filtered and sorted posts
         return res.status(200).json(
             new apiResponse(
                 200,
-                { posts: updatedPosts },
+                { posts: userPosts },
                 "User Posts Fetched Successfully",
                 true
             )
         );
     } catch (error) {
-        return res.status(401).json({ success: false, message: "Error while getting User Posts" });
+        console.error(error);
+        return res.status(500).json({ success: false, message: "Error while getting User Posts" });
     }
 });
 

@@ -34,9 +34,9 @@ const PostList = () => {
     }
   }, [dispatch, location.pathname]);
 
-  const fetchMyBookmarks = async () => {
+  const fetchMyBookmarks = async (searchQuery = '') => {
     try {
-      const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/user/bookmarks`;
+      const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/user/bookmarks${searchQuery ? `?title=${encodeURIComponent(searchQuery)}` : ''}`;
       const token = localStorage.getItem('token');
       axios.defaults.headers.common['Authorization'] = token;
       const response = await axios.post(reqUrl);
@@ -60,9 +60,9 @@ const PostList = () => {
     }
   };
 
-  const fetchMyPosts = async () => {
+  const fetchMyPosts = async (searchQuery = '') => {
     try {
-      const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/my-posts`;
+      const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/my-posts${searchQuery ? `?title=${encodeURIComponent(searchQuery)}` : ''}`;
       const token = localStorage.getItem('token');
       axios.defaults.headers.common['Authorization'] = token;
       const response = await axios.get(reqUrl);

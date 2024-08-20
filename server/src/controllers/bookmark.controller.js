@@ -78,24 +78,26 @@ const getAllBookmarks = asyncHandler(async (req, res) => {
         const userId = req.userId;  
         console.log("Decoded User ID:", userId);
 
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).json({ success: false, message: "Invalid user ID" });
-        }
+      
 
-        const user = await User.findById(userId).exec();
+        // Fetch the user from the database
+        const user = await User.findById(userId)
         console.log("Fetched User:", user);
 
         if (!user) {
-            return res.status(401).json({ success: false, message: "User not found" });
+            return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        
+        // Extract the title query parameter from the request
+        const { title } = req.query;
+
+        // Validate and convert the user's bookmarked post IDs to ObjectId
         const bookmarkedPostIds = user.bookmarks
-            .filter(id => mongoose.Types.ObjectId.isValid(id))  // Validate each ID
-            .map(id => new mongoose.Types.ObjectId(id));  // Convert to ObjectId with 'new'
+            
 
         console.log("Bookmarked Post IDs:", bookmarkedPostIds);
 
+        // If no valid bookmarked IDs are found, return an empty list
         if (bookmarkedPostIds.length === 0) {
             return res.status(200).json(
                 new apiResponse(
@@ -107,9 +109,16 @@ const getAllBookmarks = asyncHandler(async (req, res) => {
             );
         }
 
-        // Find the posts with IDs matching the user's bookmarks
-        const bookmarks = await Post.find({ _id: { $in: bookmarkedPostIds } })
-            .sort({ createdAt: -1 });
+        // Create a filter object to find posts with IDs matching the user's bookmarks
+        let filter = { _id: { $in: bookmarkedPostIds } };
+
+        // Optionally filter posts by title if the title query is provided
+        if (title) {
+            filter.heading = { $regex: title, $options: "i" };
+        }
+
+        // Fetch the bookmarked posts from the database with the filter applied
+        const bookmarks = await Post.find(filter).sort({ createdAt: -1 });
 
         console.log("Fetched Bookmarked Posts:", bookmarks);
 
@@ -126,6 +135,7 @@ const getAllBookmarks = asyncHandler(async (req, res) => {
         return res.status(500).json({ success: false, message: "Error while fetching bookmarks" });
     }
 });
+
 
 
 

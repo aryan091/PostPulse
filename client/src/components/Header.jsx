@@ -1,18 +1,20 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { removeUser } from '../slice/userSlice';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import axios from 'axios';
 import { setPosts } from "../slice/postSlice";
-import { FiMenu, FiX } from 'react-icons/fi'; // Icons for menu
-import { VscSignOut } from "react-icons/vsc";
+import { setMyPosts  } from '../slice/postSlice';
+import { setBookmarks } from '../slice/postSlice';
+import { FiMenu, FiX } from 'react-icons/fi';
 import { IoLogInOutline } from "react-icons/io5";
 
 const Header = () => {
   const user = localStorage.getItem('token');
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();  // Add this line to get the current location
   const { setId, setUsername, setIsUserLoggedIn } = useContext(UserContext);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -30,24 +32,39 @@ const Header = () => {
   }, [searchQuery]);
 
   useEffect(() => {
-    const fetchAllPosts = async (searchQuery = '') => {
+    const fetchData = async (searchQuery = '') => {
       try {
-        const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/all-posts${searchQuery ? `?title=${encodeURIComponent(searchQuery)}` : ''}`;
         const token = localStorage.getItem('token');
         axios.defaults.headers.common['Authorization'] = token;
-        const response = await axios.get(reqUrl);
-        dispatch(setPosts(response.data.data.posts));
+
+        let reqUrl;
+        let response;
+
+        if (location.pathname === '/my-posts') {
+          // Fetch user's posts
+          console.log("Fetching my posts...");
+          reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/my-posts${searchQuery ? `?title=${encodeURIComponent(searchQuery)}` : ''}`;
+          response = await axios.get(reqUrl);
+          dispatch(setMyPosts(response.data.data.posts));
+        } else if (location.pathname === '/bookmarks') {
+          // Fetch user's bookmarks
+          reqUrl = `${import.meta.env.VITE_BACKEND_URL}/user/bookmarks${searchQuery ? `?title=${encodeURIComponent(searchQuery)}` : ''}`;
+          response = await axios.post(reqUrl);
+          dispatch(setBookmarks(response.data.data.bookmarks));
+        } else {
+          // Fetch all posts (default for `/` route)
+          reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/all-posts${searchQuery ? `?title=${encodeURIComponent(searchQuery)}` : ''}`;
+          response = await axios.get(reqUrl);
+          dispatch(setPosts(response.data.data.posts));
+        }
       } catch (error) {
         console.log(error);
       }
     };
 
-    if (debouncedQuery) {
-      fetchAllPosts(debouncedQuery);
-    } else {
-      fetchAllPosts();
-    }
-  }, [debouncedQuery, dispatch]);
+    fetchData(debouncedQuery);
+    
+  }, [debouncedQuery, dispatch, location.pathname]);
 
   const handleCreateTaskClick = () => {
     navigate("/create");
@@ -74,10 +91,11 @@ const Header = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
+  const isPostDetailPage = /^\/post\/[a-zA-Z0-9]+$/.test(location.pathname);
+
+
   return (
     <div className='fixed top-0 left-0 w-full p-4 mb-4 z-40 flex flex-col md:flex-row justify-between items-center bg-gradient-to-b from-black to-transparent'>
-
-
       <Link to='/'><h1 className='text-3xl font-bold text-white '>VerseVault</h1></Link>
 
       {user && (
@@ -99,17 +117,19 @@ const Header = () => {
           </div>
 
           {/* Search Bar */}
-          <div className='text-white flex gap-4 mt-4 md:mt-0'>
-            <label htmlFor="search" className='text-white font-semibold'>Search</label>
-            <input
-              type="text"
-              id="search"
-              className='px-4 text-white border border-white bg-transparent rounded-md'
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by Title"
-            />
-          </div>
+          {!isPostDetailPage && (
+            <div className='text-white flex gap-4 mt-4 md:mt-0'>
+              <label htmlFor="search" className='text-white font-semibold'>Search</label>
+              <input
+                type="text"
+                id="search"
+                className='px-4 text-white border border-white bg-transparent rounded-md'
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by Title"
+              />
+            </div>
+          )}
         </>
       )}
     </div>

@@ -23,41 +23,35 @@ const PostCard = ({ post , userId}) => {
 
    
 
-    const fetchAllPosts = async () => {
-      try {
-        const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/all-posts`;
-        const token = localStorage.getItem('token');
-        axios.defaults.headers.common['Authorization'] = token;
-        const response = await axios.get(reqUrl);
-        dispatch(setPosts(response.data.data.posts));
-      } catch (error) {
-        console.log(error);
-      }
-    };
 
-    const fetchMyPosts = async () => {
-      try {
-        const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/my-posts`;
-        const token = localStorage.getItem('token');
-        axios.defaults.headers.common['Authorization'] = token;
-        const response = await axios.get(reqUrl);
-        dispatch(setMyPosts(response.data.data.posts));
-      } catch (error) {
-        console.log(error);
-      }
-    };
+    const fetchMyPosts = async (searchQuery = '') => {
+        try {
+          const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/my-posts${searchQuery ? `?title=${encodeURIComponent(searchQuery)}` : ''}`;
+          const token = localStorage.getItem('token');
+          axios.defaults.headers.common['Authorization'] = token;
+          const response = await axios.get(reqUrl);
+          dispatch(setMyPosts(response.data.data.posts));
+          setShowMyPosts(true);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      
   
-    const fetchMyBookmarks = async () => {
-      try {
-        const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/user/bookmarks`;
-        const token = localStorage.getItem('token');
-        axios.defaults.headers.common['Authorization'] = token;
-        const response = await axios.post(reqUrl);
-        dispatch(setBookmarks(response.data.data.bookmarks));
-      } catch (error) {
-        console.log(error);
-      }
-    };
+
+      const fetchMyBookmarks = async (searchQuery = '') => {
+        try {
+          const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/user/bookmarks${searchQuery ? `?title=${encodeURIComponent(searchQuery)}` : ''}`;
+          const token = localStorage.getItem('token');
+          axios.defaults.headers.common['Authorization'] = token;
+          const response = await axios.post(reqUrl);
+          dispatch(setBookmarks(response.data.data.bookmarks));
+          setShowMyPosts(false); // Ensure "My Posts" state is not active
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      
 
     const { _id, heading, description, imageUrl, createdAt, addedBy, bookmarks, likes } = post;
     const [isBookmarked, setIsBookmarked] = useState(false);
