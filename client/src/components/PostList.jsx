@@ -9,6 +9,7 @@ import Footer from './Footer';
 import useFetchPosts from '../hooks/useFetchPosts';
 import useFetchMyPosts from '../hooks/useFetchMyPosts';
 import useFetchBookmarks from '../hooks/useFetchBookmarks';
+import Shimmer from './Shimmer';  // Import your Shimmer component
 
 const PostList = () => {
   const posts = useSelector((state) => state.post.posts);
@@ -19,6 +20,7 @@ const PostList = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showMyPosts, setShowMyPosts] = useState(false);
   const [showBookmarks, setShowBookmarks] = useState(false);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   useFetchPosts(searchQuery);
   useFetchMyPosts(searchQuery);
@@ -36,6 +38,13 @@ const PostList = () => {
       setShowBookmarks(false);
     }
   }, [location.pathname]);
+
+  useEffect(() => {
+    // Set loading to false once data is fetched
+    if (posts.length || myPosts.length || bookmarks.length) {
+      setLoading(false);
+    }
+  }, [posts, myPosts, bookmarks]);
 
   const closeModal = () => {
     navigate("/");
@@ -58,9 +67,11 @@ const PostList = () => {
           />
         </div>
 
-        {/* Post Cards */}
+        {/* Post Cards or Shimmer */}
         <div className="relative z-10 flex flex-wrap justify-center gap-4 py-20 px-4 mt-16">
-          {postsToShow.length > 0 ? (
+          {loading ? (
+            Array(6).fill("").map((_, index) => <Shimmer key={index} />) // Show shimmer placeholders
+          ) : postsToShow.length > 0 ? (
             postsToShow.map((post) => (
               <Link to={`/post/${post?._id}`} key={post?._id}>
                 <PostCard post={post} />
