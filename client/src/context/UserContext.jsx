@@ -6,6 +6,7 @@ const UserContext = createContext({});
 function UserContextProvider({ children }) {
   const [username, setUsername] = useState(null);
   const [id, setId] = useState(null);
+  const [email , setEmail] = useState(null);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -23,6 +24,8 @@ function UserContextProvider({ children }) {
           const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/profile`);
           setUsername(response.data.data.name);
           setId(response.data.data._id);
+          setIsUserLoggedIn(true);
+          setEmail(response.data.data.email);
           console.log("Fetched User ID:", response.data.data._id); // Add this line
         }
       } catch (error) {
@@ -38,7 +41,7 @@ function UserContextProvider({ children }) {
 
 
   return (
-    <UserContext.Provider value={{ username, setUsername, id, setId, isUserLoggedIn, setIsUserLoggedIn, loading , setLoading }}>
+    <UserContext.Provider value={{ username, setUsername, id, setId, isUserLoggedIn, setIsUserLoggedIn, loading , setLoading , email , setEmail }}>
       {children}
     </UserContext.Provider>
   );

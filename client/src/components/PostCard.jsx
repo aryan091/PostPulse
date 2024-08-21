@@ -11,8 +11,7 @@ import { deletePost, updateTotalLikes, updatePost, setBookmarks, setMyPosts } fr
 import { setPost } from "../slice/viewPostSlice";
 import { useNavigate } from "react-router-dom";
 import ShimmerPostCard from "./ShimmerPostCard";
-import useFetchBookmarks from "../hooks/useFetchBookmarks";
-import useFetchMyPosts from "../hooks/useFetchMyPosts";
+
 
 const PostCard = ({ post, userId }) => {
   if (!post) return null;
