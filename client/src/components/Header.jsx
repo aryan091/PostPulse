@@ -95,7 +95,7 @@ const Header = () => {
 
   return (
     <div className='fixed top-0 left-0 w-full p-4 mb-4 z-40 flex flex-col md:flex-row justify-between items-center bg-gradient-to-b from-black to-transparent'>
-      <Link to='/'><h1 className='text-3xl font-bold text-white '>VerseVault</h1></Link>
+      <Link to='/'><h1 className='text-3xl font-bold text-white '>PostPulse</h1></Link>
 
       {user && (
         <>
