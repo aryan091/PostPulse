@@ -12,7 +12,7 @@ export const useAuth = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { setId, setUsername, setIsUserLoggedIn } = useContext(UserContext);
+  const { setId, setUsername, setIsUserLoggedIn , setEmail } = useContext(UserContext);
 
   const register = async (name, email, password) => {
     try {
@@ -44,6 +44,8 @@ export const useAuth = () => {
       setId(response.data.data.userData._id);
       setUsername(response.data.data.userData.name);
       setIsUserLoggedIn(true);
+      setEmail(response.data.data.userData.email);
+
 
       toast.success(`${response.data.data.userData.name} Logged In Successfully!`);
       setLoading(false);
