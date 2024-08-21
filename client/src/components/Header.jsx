@@ -42,7 +42,6 @@ const Header = () => {
 
         if (location.pathname === '/my-posts') {
           // Fetch user's posts
-          console.log("Fetching my posts...");
           reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/my-posts${searchQuery ? `?title=${encodeURIComponent(searchQuery)}` : ''}`;
           response = await axios.get(reqUrl);
           dispatch(setMyPosts(response.data.data.posts));

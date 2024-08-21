@@ -92,7 +92,6 @@ const loginUser = asyncHandler( async (req , res) => {
 
           const loggedInUser = await User.findById(user._id).select("-password")
 
-          //console.log("Logged In User - ",loggedInUser)
 
           
         
@@ -114,7 +113,6 @@ const loginUser = asyncHandler( async (req , res) => {
         )
     }
        catch (error) {
-        console.log(error)
         return res.status(401).json({ success: false, message: "Error while logging in " })
     }
     
@@ -153,7 +151,6 @@ const getUserProfile = asyncHandler( async (req, res) => {
 
         
     } catch (error) {
-        console.log(error)
         return res.status(401).json({ success: false, message: "Error while fetching User profile " })
 
     }
@@ -184,7 +181,6 @@ const getUserById = asyncHandler( async (req, res) => {
             )
         )
     } catch (error) {
-        console.log(error)
         return res.status(401).json({ success: false, message: "Error while fetching User profile " })  
 
     }

@@ -12,7 +12,6 @@ const verifyToken = (req, res, next) => {
         req.userId = decode.userId;
         next();
     } catch (error) {
-        console.log(error);
         res.status(401).json({ errorMessage: "Invalid token!" , isTokenExpired : true});
     }
 };
@@ -21,7 +20,6 @@ const decodeJwtToken = (authHeader) => {
     try {
         
         if (!authHeader) {
-            console.log("Authorization header is missing.");
 
             return res.status(401).json({ message: "Unauthorized access" });
 
@@ -31,15 +29,13 @@ const decodeJwtToken = (authHeader) => {
 
         const userId = decode.userId;
         if (!userId) {
-            console.log("User ID is missing in the decoded token.");
-            return;
+            return res.status(401).json({ message: "Unauthorized access" });
         }
 
         return userId;
         
     } catch (error) {
-        console.log("Error decoding JWT token:", error);
-        return;
+        return res.status(401).json({ message: "Invalid token" });
     }
 }
 

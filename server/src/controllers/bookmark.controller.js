@@ -68,7 +68,6 @@ const toggleBookmarkPost = asyncHandler(async (req, res) => {
             );
         }
     } catch (error) {
-        console.log(error);
         return res.status(500).json({ success: false, message: "Error while toggling bookmark on post" });
     }
 });
@@ -76,13 +75,11 @@ const toggleBookmarkPost = asyncHandler(async (req, res) => {
 const getAllBookmarks = asyncHandler(async (req, res) => {
     try {
         const userId = req.userId;  
-        console.log("Decoded User ID:", userId);
 
       
 
         // Fetch the user from the database
         const user = await User.findById(userId)
-        console.log("Fetched User:", user);
 
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
@@ -95,7 +92,6 @@ const getAllBookmarks = asyncHandler(async (req, res) => {
         const bookmarkedPostIds = user.bookmarks
             
 
-        console.log("Bookmarked Post IDs:", bookmarkedPostIds);
 
         // If no valid bookmarked IDs are found, return an empty list
         if (bookmarkedPostIds.length === 0) {
@@ -120,7 +116,6 @@ const getAllBookmarks = asyncHandler(async (req, res) => {
         // Fetch the bookmarked posts from the database with the filter applied
         const bookmarks = await Post.find(filter).sort({ createdAt: -1 });
 
-        console.log("Fetched Bookmarked Posts:", bookmarks);
 
         return res.status(200).json(
             new apiResponse(

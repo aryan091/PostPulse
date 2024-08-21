@@ -27,7 +27,6 @@ app.get('/', (req, res) => {
 })
 
 app.get('/api/health', (req, res) => {
-    console.log('Server is up... :)')
     res.json({ 
         service:'Backend VerseVault Server',
         status:'ACTIVE',

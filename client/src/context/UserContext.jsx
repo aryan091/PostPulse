@@ -26,7 +26,6 @@ function UserContextProvider({ children }) {
           setId(response.data.data._id);
           setIsUserLoggedIn(true);
           setEmail(response.data.data.email);
-          console.log("Fetched User ID:", response.data.data._id); // Add this line
         }
       } catch (error) {
         console.error('Error fetching user profile:', error.response ? error.response.data.message : error.message);
