@@ -4,6 +4,7 @@ import Login from './Login';
 import PostList from './PostList';
 import ProtectedRoute from './ProtectedRoute';
 import PostView from './PostView';
+import NotFound from './NotFound';
 
 const appRouter = createBrowserRouter([
   {
@@ -41,6 +42,10 @@ const appRouter = createBrowserRouter([
         <PostList />
       </ProtectedRoute>
     )
+  },
+  {
+    path: "*",
+    element : <NotFound />
   }
 ]);
 
