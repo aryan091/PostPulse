@@ -125,7 +125,7 @@ const PostView = () => {
                     <div className="flex justify-end gap-2 z-20">
                       <button
                         className="z-20"
-                        onClick={() => handleDeleteComment(comment._id)}
+                        onClick={(e) => handleDeleteComment(comment._id , e)}
                       >
                         <RiDeleteBin6Fill size={24} color="red" />
                       </button>
@@ -133,7 +133,7 @@ const PostView = () => {
                       { email === comment?.commentedBy?.email && (
                         <button
                           className="z-20"
-                          onClick={() => handleEditComment(comment)}
+                          onClick={(e) => handleEditComment(comment , e)}
                         >
                           <FaEdit size={24} color="white" />
                         </button>
@@ -167,7 +167,7 @@ const PostView = () => {
               )}
             </div>
 
-            <form onSubmit={handleCommentSubmit}>
+            <form onSubmit={(e) => handleCommentSubmit(e)}>
               <textarea
                 className="w-full p-2 mb-2 rounded bg-gray-700 text-white"
                 placeholder="Write a comment..."

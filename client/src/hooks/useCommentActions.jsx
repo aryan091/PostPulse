@@ -1,14 +1,31 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { addComment, updateComment, deleteComment, setComment } from "../slice/viewPostSlice";
 import { toast } from "react-toastify";
+import { UserContext } from "../context/UserContext"; // Import UserContext
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const useCommentActions = (postId) => {
   const [newComment, setNewComment] = useState("");
   const [editCommentId, setEditCommentId] = useState(null);
   const [loading, setLoading] = useState(false); // Loading state
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { isUserLoggedIn } = useContext(UserContext); // Get login status from context
+
+  const handleAction = (event, action) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!isUserLoggedIn) {
+      toast.error("Please login to perform this action");
+      navigate("/login");
+      return true; // Indicate that the user is not logged in
+    }
+
+    return false; // Indicate that the user is logged in
+  };
 
   const fetchPostComments = async () => {
     setLoading(true); // Start loading
@@ -27,8 +44,8 @@ const useCommentActions = (postId) => {
   };
 
   const handleCommentSubmit = async (e) => {
-    e.preventDefault();
-    
+    if (handleAction(e)) return; // Check if the user is logged in
+
     if (newComment.trim()) {
       setLoading(true); // Start loading
   
@@ -70,14 +87,17 @@ const useCommentActions = (postId) => {
       }
     }
   };
-  
 
-  const handleEditComment = (comment) => {
+  const handleEditComment = (comment,event) => {
+    if (handleAction(event)) return; // Check if the user is logged in
+
     setEditCommentId(comment._id);
     setNewComment(comment.text);
   };
 
-  const handleDeleteComment = async (commentId) => {
+  const handleDeleteComment = async (commentId, event) => {
+    if (handleAction(event)) return; // Check if the user is logged in
+
     setLoading(true); // Start loading
     try {
       const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/comment/delete/${commentId}`;

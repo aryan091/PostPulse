@@ -15,7 +15,7 @@ const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();  // Add this line to get the current location
-  const { setId, setUsername, setIsUserLoggedIn } = useContext(UserContext);
+  const { setId, setUsername, setIsUserLoggedIn , setEmail } = useContext(UserContext);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
@@ -65,6 +65,15 @@ const Header = () => {
     
   }, [debouncedQuery, dispatch, location.pathname]);
 
+
+  const handleLoginClick = () => {
+    navigate("/login"); // Navigate to the login page
+  };
+
+  const handleRegisterClick = () => {
+    navigate("/login", { state: { defaultSignIn: false } }); // Navigate to the register page with prop
+  };
+
   const handleCreateTaskClick = () => {
     navigate("/create");
   };
@@ -78,6 +87,7 @@ const Header = () => {
     setIsUserLoggedIn(false);
     setId(null);
     setUsername(null);
+    setEmail(null);
     dispatch(removeUser());
     navigate('/');
   };
@@ -131,6 +141,21 @@ const Header = () => {
           )}
         </>
       )}
+{ !user && (
+  <><div className="md:hidden flex items-center absolute left-[22rem]">
+            <button onClick={toggleDropdown} className="text-white">
+              {isDropdownOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+            </button>
+          </div>
+          
+<div className={`${isDropdownOpen ? 'block' : 'hidden'} md:flex justify-around items-center gap-4`}>
+<button className='py-2 px-4 text-white bg-transparent rounded-md font-semibold' onClick={handleRegisterClick}>Register</button>
+<button className='py-2 px-4 text-white bg-transparent rounded-md font-semibold' onClick={handleLoginClick}>Login</button>
+</div>
+</>
+)}
+
+
     </div>
   );
 };

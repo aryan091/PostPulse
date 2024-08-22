@@ -8,23 +8,15 @@ import PostView from './PostView';
 const appRouter = createBrowserRouter([
   {
     path: "/",
+    element: <PostList /> // Allow viewing posts without login
+  },
+  {
+    path: "/login",
     element: <Login />
   },
   {
-    path: "/posts",
-    element: (
-      <ProtectedRoute>
-        <PostList />
-      </ProtectedRoute>
-    )
-  },
-  {
     path: "/post/:postId",
-    element: (
-      <ProtectedRoute>
-        <PostView />
-      </ProtectedRoute>
-    )
+    element: <PostView /> // Allow viewing a single post without login
   },
   {
     path: "/create",
@@ -54,12 +46,10 @@ const appRouter = createBrowserRouter([
 
 const Body = () => {
   return (
-       <div className="flex-grow">
+    <div className="flex-grow">
       <RouterProvider router={appRouter} />
     </div>
-  
   );
-
-}
+};
 
 export default Body;

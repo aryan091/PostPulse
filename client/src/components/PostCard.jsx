@@ -1,17 +1,16 @@
+import React, { useContext, useState, useEffect } from "react";
 import { FcLike, FcLikePlaceholder } from "react-icons/fc";
 import { FaBookmark, FaEdit } from "react-icons/fa";
-import { formatDate } from '../utils/helper';
-import { useContext, useState, useEffect } from "react";
-import { UserContext } from "../context/UserContext";
 import { RiDeleteBin6Fill } from "react-icons/ri";
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { useDispatch, useSelector } from "react-redux";
-import { deletePost, updateTotalLikes, updatePost, setBookmarks, setMyPosts } from "../slice/postSlice";
-import { setPost } from "../slice/viewPostSlice";
 import { useNavigate } from "react-router-dom";
+import { formatDate } from '../utils/helper';
+import { UserContext } from "../context/UserContext";
+import { deletePost, updateTotalLikes, updatePost, setBookmarks, setMyPosts } from "../slice/postSlice";
 import ShimmerPostCard from "./ShimmerPostCard";
-
+import { setPost } from "../slice/viewPostSlice";
 
 const PostCard = ({ post, userId }) => {
   if (!post) return null;
@@ -21,7 +20,7 @@ const PostCard = ({ post, userId }) => {
   const [loading, setLoading] = useState(false);
 
   const likesValue = post?.totalLikes;
-  const { id } = useContext(UserContext);
+  const { id, isUserLoggedIn } = useContext(UserContext);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const allBookmarks = useSelector((state) => state.post.bookmarks);
@@ -30,52 +29,36 @@ const PostCard = ({ post, userId }) => {
     dispatch(setPost(post));
   }, [post]);
 
-  const fetchMyPosts = async (searchQuery = '') => {
-    try {
-      const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/my-posts${searchQuery ? `?title=${encodeURIComponent(searchQuery)}` : ''}`;
-      const token = localStorage.getItem('token');
-      axios.defaults.headers.common['Authorization'] = token;
-      const response = await axios.get(reqUrl);
-      dispatch(setMyPosts(response.data.data.posts));
-      setShowMyPosts(true);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const fetchMyBookmarks = async (searchQuery = '') => {
-    try {
-      const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/user/bookmarks${searchQuery ? `?title=${encodeURIComponent(searchQuery)}` : ''}`;
-      const token = localStorage.getItem('token');
-      axios.defaults.headers.common['Authorization'] = token;
-      const response = await axios.post(reqUrl);
-      dispatch(setBookmarks(response.data.data.bookmarks));
-      setShowMyPosts(false); // Ensure "My Posts" state is not active
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const { _id, heading, description, imageUrl, createdAt, addedBy, bookmarks, likes } = post;
-
   useEffect(() => {
-    if (id !== null && id !== undefined && bookmarks && likes) {
-      setIsBookmarked(bookmarks.includes(id));
-      setIsLiked(likes.includes(id));
+    if (id !== null && id !== undefined && post.bookmarks && post.likes) {
+      setIsBookmarked(post.bookmarks.includes(id));
+      setIsLiked(post.likes.includes(id));
     }
-  }, [id, bookmarks, likes]);
+  }, [id, post.bookmarks, post.likes]);
 
-  const date = formatDate(createdAt);
+  const date = formatDate(post.createdAt);
 
-  const handleDelete = async (event) => {
+  const handleAction = (event, action) => {
     event.preventDefault();
     event.stopPropagation();
+
+    if (!isUserLoggedIn) {
+      toast.error("Please login to perform this action");
+      navigate("/login");
+      return true; // Indicate that the user is not logged in
+    }
+
+    return false; // Indicate that the user is logged in
+  };
+
+  const handleDelete = async (event) => {
+    if (handleAction(event)) return;
     try {
-      const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/delete/${_id}`;
+      const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/delete/${post._id}`;
       const token = localStorage.getItem("token");
       axios.defaults.headers.common["Authorization"] = token;
       await axios.delete(reqUrl);
-      dispatch(deletePost(_id));
+      dispatch(deletePost(post._id));
       await fetchMyPosts();
       toast.success("Post deleted successfully");
     } catch (error) {
@@ -84,28 +67,25 @@ const PostCard = ({ post, userId }) => {
   };
 
   const handleEditClick = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
+    if (handleAction(event)) return;
     navigate("/create", {
       state: { post: post, edit: true },
     });
   };
 
   const handleBookmarkClick = async (event) => {
-    event.preventDefault();
-    event.stopPropagation();
+    if (handleAction(event)) return;
     try {
       setLoading(true);
-      const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/user/bookmark/${_id}`;
+      const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/user/bookmark/${post._id}`;
       const token = localStorage.getItem("token");
       axios.defaults.headers.common["Authorization"] = token;
       await axios.post(reqUrl);
       const updatedBookmarks = isBookmarked
-        ? allBookmarks.filter(bookmark => bookmark !== _id)
-        : [...allBookmarks, _id];
+        ? allBookmarks.filter(bookmark => bookmark !== post._id)
+        : [...allBookmarks, post._id];
       setIsBookmarked(!isBookmarked);
       dispatch(setBookmarks(updatedBookmarks));
-      await fetchMyBookmarks();
       toast.success(isBookmarked ? "Post removed from bookmarks" : "Post bookmarked successfully");
       setLoading(false);
     } catch (error) {
@@ -116,19 +96,17 @@ const PostCard = ({ post, userId }) => {
   };
 
   const handleLikeClick = async (event) => {
-    event.preventDefault();
-    event.stopPropagation();
+    if (handleAction(event)) return;
     try {
       setLoading(true);
-      const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/like/${_id}`;
+      const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/like/${post._id}`;
       const token = localStorage.getItem("token");
       axios.defaults.headers.common["Authorization"] = token;
       const response = await axios.post(reqUrl);
-      dispatch(updateTotalLikes({ _id, totalLikes: response.data.data.post.totalLikes }));
+      dispatch(updateTotalLikes({ _id: post._id, totalLikes: response.data.data.post.totalLikes }));
       setIsLiked(!isLiked);
       dispatch(updatePost(response.data.data.post));
-      await Promise.all([fetchMyPosts(), fetchMyBookmarks()]);
-      toast.success(isLiked ? 'Story Unliked Successfully!' : 'Story Liked Successfully!');
+      toast.success(isLiked ? 'Post unliked successfully!' : 'Post liked successfully!');
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -139,22 +117,20 @@ const PostCard = ({ post, userId }) => {
 
   return (
     <div className="relative h-[460px] w-[20rem] md:w-[30rem] rounded-md overflow-hidden group shadow-2xl">
-      {/* Shimmer Effect Placeholder */}
       {loading ? (
         <ShimmerPostCard />
       ) : (
         <>
-          {/* Background Image */}
           <div
             className="absolute inset-0 transition-transform duration-300 ease-in-out bg-cover bg-center group-hover:scale-110"
             style={{ 
-              backgroundImage: `url(${imageUrl})`,
+              backgroundImage: `url(${post.imageUrl})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               zIndex: -1
             }}
           />
-          {addedBy === id && (
+          {post.addedBy === id && (
             <>
               <button className="absolute top-2 left-3 z-20" onClick={handleDelete}>
                 <RiDeleteBin6Fill size={24} color="red" />
@@ -164,27 +140,24 @@ const PostCard = ({ post, userId }) => {
               </button>
             </>
           )}
-
-          {/* Content */}
           <div className="relative z-10 bottom-2 left-0 right-0 p-4 bg-gradient-to-b from-black rounded-b-md">
-            <h1 className="text-[2rem] font-bold text-white mt-60 line-clamp-1 overflow-hidden">{heading}</h1>
+            <h1 className="text-[2rem] font-bold text-white mt-60 line-clamp-1 overflow-hidden">{post.heading}</h1>
             <p className="text-white h-12 mt-2 line-clamp-2 overflow-hidden font-semibold">
-              {description}
+              {post.description}
             </p>
             <p className='text-white font-semibold mt-8'>Published on {date}</p>
-
             <div className="text-white flex justify-between mt-2">
-                    <div className="flex flex-row gap-2 items-center">
-                        <button onClick={(e) => handleLikeClick(e)}>
-                            {isLiked ? <FcLike size={24} /> : <FcLikePlaceholder size={24} />}
-                        </button>
-                        {likesValue > 0 && <div>{likesValue}</div>}
-                    </div>
-                    <div onClick={(e) => handleBookmarkClick(e)}>
-                        <FaBookmark size={24} color={isBookmarked ? "blue" : "white"} />
-                    </div>
-                </div>
+              <div className="flex flex-row gap-2 items-center">
+                <button onClick={(e) => handleLikeClick(e)}>
+                  {isLiked ? <FcLike size={24} /> : <FcLikePlaceholder size={24} />}
+                </button>
+                {likesValue > 0 && <div>{likesValue}</div>}
+              </div>
+              <div onClick={(e) => handleBookmarkClick(e)}>
+                <FaBookmark size={24} color={isBookmarked ? "blue" : "white"} />
+              </div>
             </div>
+          </div>
         </>
       )}
     </div>

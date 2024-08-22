@@ -1,11 +1,11 @@
-import React, { useRef, useState , useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import { BG_URL } from '../utils/constants';
 import { checkValidData } from '../utils/validate';
 import { useAuth } from '../hooks/useAuth'; 
-import { useNavigate } from 'react-router-dom';
-import { PropagateLoader } from 'react-spinners'; // Import the spinner component
+import { useNavigate, useLocation } from 'react-router-dom';
+import { PropagateLoader } from 'react-spinners'; 
 
 const loadingSpinnerStyles = {
   position: "fixed",
@@ -18,31 +18,38 @@ const loadingSpinnerStyles = {
   alignItems: "center",
   zIndex: 9999,
   backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  transform:"none"  
+  transform: "none"
 }
+
 const Login = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isSignInForm, setIsSignInForm] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
   const email = useRef(null);
   const password = useRef(null);
   const name = useRef(null);
 
   const token = localStorage.getItem('token');
-  const navigate = useNavigate();
-
 
   useEffect(() => {
     if (token) {
-      navigate('/posts');
-    }
-    else{
       navigate('/');
     }
   }, [token, navigate]);
 
-  const { register, login, loading, errorMessage } = useAuth(); // Use the custom hook
+  useEffect(() => {
+    // Set the form type based on location state
+    if (location.state && location.state.defaultSignIn !== undefined) {
+      setIsSignInForm(location.state.defaultSignIn);
+    }
+  }, [location.state]);
+
+  const { register, login, loading } = useAuth();
 
   const toggleSignInForm = () => {
     setIsSignInForm(!isSignInForm);
+    setErrorMessage(''); // Clear error message when toggling
   };
 
   const handleButtonClick = async () => {
@@ -58,10 +65,16 @@ const Login = () => {
       return;
     }
 
-    if (!isSignInForm) {
-      await register(name.current.value, email.current.value, password.current.value);
-    } else {
-      await login(email.current.value, password.current.value);
+    setErrorMessage(''); // Clear any previous error message
+
+    try {
+      if (isSignInForm) {
+        await login(email.current.value, password.current.value);
+      } else {
+        await register(name.current.value, email.current.value, password.current.value);
+      }
+    } catch (error) {
+      setErrorMessage('An error occurred. Please try again.');
     }
   };
 
@@ -77,7 +90,7 @@ const Login = () => {
         />
       </div>
 
-      <form onSubmit={(e) => e.preventDefault()} className="relative p-10 w-full md:w-3/12 my-28 bg-black  md:my-16 mx-auto z-20 right-0 left-0 text-white bg-opacity-50 rounded-lg">
+      <form onSubmit={(e) => e.preventDefault()} className="relative p-10 w-full md:w-3/12 my-28 bg-black md:my-16 mx-auto z-20 right-0 left-0 text-white bg-opacity-50 rounded-lg">
         <h1 className="font-bold text-3xl py-4">{isSignInForm ? 'Sign In' : 'Sign Up'}</h1>
 
         {!isSignInForm && (
@@ -102,15 +115,18 @@ const Login = () => {
           className="p-4 my-4 w-full bg-transparent border border-gray rounded-lg"
         />
 
-        <p className="text-red-500 text-center font-semibold py-2">{errorMessage}</p>
+        {errorMessage && <p className="text-red-500 text-center font-semibold py-2">{errorMessage}</p>}
 
         <button className="p-4 my-6 bg-red-700 w-full rounded-lg" onClick={handleButtonClick} disabled={loading}>
           {isSignInForm ? 'Sign In' : 'Sign Up'}
         </button>
 
-        {loading && <PropagateLoader color="#fffff" 
-                      cssOverride={loadingSpinnerStyles}
-                      />} {/* Show spinner only when loading */}
+        {loading && (
+          <PropagateLoader
+            color="#ffffff"
+            cssOverride={loadingSpinnerStyles}
+          />
+        )}
 
         <p className="text-neutral-300 py-4">
           {isSignInForm ? 'New to VerseVault?' : 'Already have an account?'}{' '}

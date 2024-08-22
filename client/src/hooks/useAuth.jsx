@@ -50,7 +50,7 @@ export const useAuth = () => {
       toast.success(`${response.data.data.userData.name} Logged In Successfully!`);
       setLoading(false);
       setErrorMessage(null);
-      navigate('/posts');
+      navigate('/');
     } catch (error) {
       setLoading(false);
       toast.error(error?.response?.data?.message || "Login failed");

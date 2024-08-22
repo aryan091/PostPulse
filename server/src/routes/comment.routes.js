@@ -7,7 +7,7 @@ const { verifyToken } = require('../middlewares/verifyJwtToken');
 router.post('/create', verifyToken, commentController.createComment);
 
 // Get all comments for a post
-router.get('/post/:postId', verifyToken, commentController.getCommentsByPost);
+router.get('/post/:postId', commentController.getCommentsByPost);
 
 // Update a comment
 router.put('/update/:commentId', verifyToken, commentController.updateComment);
