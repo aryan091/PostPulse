@@ -14,6 +14,7 @@ const useFetchPost = (postId, posts) => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/post/view-post/${postId}`;
         const response = await axios.get(url);
         setPost(response.data.data.post);
+        
       } catch (err) {
         setError(err);
       } finally {

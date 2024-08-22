@@ -12,7 +12,7 @@ import { deletePost, updateTotalLikes, updatePost, setBookmarks, setMyPosts } fr
 import ShimmerPostCard from "./ShimmerPostCard";
 import { setPost } from "../slice/viewPostSlice";
 
-const PostCard = ({ post, userId }) => {
+const PostCard = ({ post }) => {
   if (!post) return null;
 
   const [isBookmarked, setIsBookmarked] = useState(false);

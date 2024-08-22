@@ -110,8 +110,8 @@ const getAllPosts = asyncHandler(async (req, res) => {
 const viewPost = asyncHandler(async (req, res) => {
     try {
         const postId = req.params.postId;
-        const post = await Post.findById(postId);
-
+        const post = await Post.findById(postId)
+        .populate("addedBy", "name email"); // Populate the `addedBy` field
         if (!post) {
             throw new apiError(404, "Post not found");
         }
