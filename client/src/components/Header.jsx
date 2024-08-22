@@ -89,6 +89,7 @@ const Header = () => {
     setUsername(null);
     setEmail(null);
     dispatch(removeUser());
+    setIsDropdownOpen(false);
     navigate('/');
   };
 

@@ -28,7 +28,9 @@ const useCommentActions = (postId) => {
   };
 
   const fetchPostComments = async () => {
+    
     setLoading(true); // Start loading
+
     try {
       const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/comment/post/${postId}`;
       const token = localStorage.getItem("token");

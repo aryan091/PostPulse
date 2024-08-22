@@ -25,7 +25,7 @@ const PostView = () => {
   const { loading: commentsLoading } = useFetchComments(postId);
   const postLoadingState = postLoading || userLoading || commentsLoading;
 
-  const { email } = useContext(UserContext);
+  const { email , isUserLoggedIn } = useContext(UserContext);
 
   const commentsFromStore = useSelector((state) => state?.viewPost?.comments);
   const {
@@ -77,28 +77,32 @@ const PostView = () => {
             </div>
 
             <div className="h-full w-full p-4 md:p-8">
-              <div className="text-white flex justify-between mt-2 gap-4 md:gap-0">
-                <div className="flex flex-row gap-2 items-center">
-                  <div className="rounded-full w-10 h-10">
-                    <img
-                      src={AVATAR_URL}
-                      alt=""
-                      className="rounded-full w-full h-full"
-                    />
-                  </div>
-                  <div>
-                    <div className="text-white font-bold">{user?.name}</div>
-                    <div className="text-white font-semibold">
-                      {user?.email}
-                    </div>
-                  </div>
+
+            <div className={`text-white flex justify-between ${!isUserLoggedIn ? 'flex-row-reverse' : ''} mt-2 gap-4 md:gap-0`}>
+
+              { isUserLoggedIn &&(<div className="flex flex-row gap-2 items-center">
+                <div className="rounded-full w-10 h-10">
+                  <img
+                    src={AVATAR_URL}
+                    alt=""
+                    className="rounded-full w-full h-full"
+                  />
                 </div>
                 <div>
-                  <p className="text-white font-semibold mt-2">
-                    Published on {date}
-                  </p>
+                  <div className="text-white font-bold">{user?.name}</div>
+                  <div className="text-white font-semibold">
+                    {user?.email}
+                  </div>
                 </div>
               </div>
+)}
+
+<div>
+<p className="text-white  font-semibold mt-2">
+                  Published on {date}
+                </p>
+              </div>
+            </div>
 
               <h1 className="text-[2rem] font-bold text-white mt-4 md:mt-8">
                 {heading}
@@ -107,7 +111,11 @@ const PostView = () => {
                 {description}
               </p>
             </div>
+
           </div>
+
+
+
 
           <div className="p-4 bg-gray-800 text-white bg-opacity-70">
             <h2 className="text-xl font-bold mb-4">Comments</h2>
@@ -123,22 +131,27 @@ const PostView = () => {
                     className="mb-4 p-2 border-b border-gray-600"
                   >
                     <div className="flex justify-end gap-2 z-20">
-                      <button
-                        className="z-20"
-                        onClick={(e) => handleDeleteComment(comment._id , e)}
-                      >
-                        <RiDeleteBin6Fill size={24} color="red" />
-                      </button>
+      {isUserLoggedIn && (
+        <>
+          <button
+            className="z-20"
+            onClick={(e) => handleDeleteComment(comment._id, e)}
+          >
+            <RiDeleteBin6Fill size={24} color="red" />
+          </button>
+          
+          {email === comment?.commentedBy?.email && (
+            <button
+              className="z-20"
+              onClick={(e) => handleEditComment(comment, e)}
+            >
+              <FaEdit size={24} color="white" />
+            </button>
+          )}
+        </>
+      )}
+    </div>
 
-                      { email === comment?.commentedBy?.email && (
-                        <button
-                          className="z-20"
-                          onClick={(e) => handleEditComment(comment , e)}
-                        >
-                          <FaEdit size={24} color="white" />
-                        </button>
-                      )}
-                    </div>
                     <div>
                       <div className="flex flex-row gap-2 items-center">
                         <div className="rounded-full w-10 h-10">
