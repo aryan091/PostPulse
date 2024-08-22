@@ -21,7 +21,7 @@ const PostView = () => {
   const posts = useSelector((state) => state?.post?.posts);
   const { post, loading: postLoading, error } = useFetchPost(postId, posts);
 
-  // const { user, loading: userLoading } = useFetchUser(post?.addedBy);
+  const { user, loading: userLoading } = useFetchUser(post?.addedBy);
   const { loading: commentsLoading } = useFetchComments(postId);
   const postLoadingState = postLoading || userLoading || commentsLoading;
 
@@ -38,6 +38,7 @@ const PostView = () => {
     loading,
   } = useCommentActions(postId);
 
+  
 
   if (error) {
     return <div>Error loading post.</div>;
@@ -47,7 +48,7 @@ const PostView = () => {
     return <div>Redirecting to posts...</div>;
   }
 
-  const { createdAt, heading, description, addedBy,imageUrl } = post;
+  const { createdAt, heading, description, imageUrl } = post;
   const date = formatDate(createdAt);
 
   return (
@@ -87,9 +88,9 @@ const PostView = () => {
                   />
                 </div>
                 <div>
-                  <div className="text-white font-bold">{addedBy?.name}</div>
+                  <div className="text-white font-bold">{user?.name}</div>
                   <div className="text-white font-semibold">
-                    {addedBy?.email}
+                    {user?.email}
                   </div>
                 </div>
               </div>

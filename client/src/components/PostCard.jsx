@@ -11,6 +11,7 @@ import { UserContext } from "../context/UserContext";
 import { deletePost, updateTotalLikes, updatePost, setBookmarks, setMyPosts } from "../slice/postSlice";
 import ShimmerPostCard from "./ShimmerPostCard";
 import { setPost } from "../slice/viewPostSlice";
+import Shimmer from "./Shimmer"
 
 const PostCard = ({ post }) => {
   if (!post) return null;
@@ -38,7 +39,40 @@ const PostCard = ({ post }) => {
 
   const date = formatDate(post.createdAt);
 
+  const fetchMyPosts = async (searchQuery = '') => {
+    try {
+      setLoading(true);
+      const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/my-posts${searchQuery ? `?title=${encodeURIComponent(searchQuery)}` : ''}`;
+      const token = localStorage.getItem('token');
+      axios.defaults.headers.common['Authorization'] = token;
+      const response = await axios.get(reqUrl);
+      dispatch(setMyPosts(response.data.data.posts));
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  };
+
+  const fetchMyBookmarks = async (searchQuery = '') => {
+    try {
+      setLoading(true);
+      const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/user/bookmarks${searchQuery ? `?title=${encodeURIComponent(searchQuery)}` : ''}`;
+      const token = localStorage.getItem('token');
+      axios.defaults.headers.common['Authorization'] = token;
+      const response = await axios.post(reqUrl);
+      dispatch(setBookmarks(response.data.data.bookmarks));
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+  };
+
+
+
   const handleAction = (event, action) => {
+
     event.preventDefault();
     event.stopPropagation();
 
@@ -54,6 +88,7 @@ const PostCard = ({ post }) => {
   const handleDelete = async (event) => {
     if (handleAction(event)) return;
     try {
+      setLoading(true);
       const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/post/delete/${post._id}`;
       const token = localStorage.getItem("token");
       axios.defaults.headers.common["Authorization"] = token;
@@ -61,7 +96,9 @@ const PostCard = ({ post }) => {
       dispatch(deletePost(post._id));
       await fetchMyPosts();
       toast.success("Post deleted successfully");
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.log(error);
     }
   };
@@ -86,6 +123,7 @@ const PostCard = ({ post }) => {
         : [...allBookmarks, post._id];
       setIsBookmarked(!isBookmarked);
       dispatch(setBookmarks(updatedBookmarks));
+      await fetchMyBookmarks();
       toast.success(isBookmarked ? "Post removed from bookmarks" : "Post bookmarked successfully");
       setLoading(false);
     } catch (error) {
@@ -106,6 +144,7 @@ const PostCard = ({ post }) => {
       dispatch(updateTotalLikes({ _id: post._id, totalLikes: response.data.data.post.totalLikes }));
       setIsLiked(!isLiked);
       dispatch(updatePost(response.data.data.post));
+      await Promise.all([fetchMyPosts(), fetchMyBookmarks()]);
       toast.success(isLiked ? 'Post unliked successfully!' : 'Post liked successfully!');
       setLoading(false);
     } catch (error) {
@@ -114,6 +153,7 @@ const PostCard = ({ post }) => {
       console.log(error);
     }
   };
+
 
   return (
     <div className="relative h-[460px] w-[20rem] md:w-[28rem] rounded-md overflow-hidden group shadow-2xl">
