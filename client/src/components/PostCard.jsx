@@ -116,7 +116,7 @@ const PostCard = ({ post, userId }) => {
   };
 
   return (
-    <div className="relative h-[460px] w-[20rem] md:w-[30rem] rounded-md overflow-hidden group shadow-2xl">
+    <div className="relative h-[460px] w-[20rem] md:w-[28rem] rounded-md overflow-hidden group shadow-2xl">
       {loading ? (
         <ShimmerPostCard />
       ) : (
