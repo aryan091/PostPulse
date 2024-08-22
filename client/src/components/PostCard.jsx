@@ -151,7 +151,7 @@ const PostCard = ({ post, userId }) => {
                 <button onClick={(e) => handleLikeClick(e)}>
                   {isLiked ? <FcLike size={24} /> : <FcLikePlaceholder size={24} />}
                 </button>
-                {likesValue > 0 && <div>{likesValue}</div>}
+                {likesValue > 0 && <div className="text-white font-bold">{likesValue}</div>}
               </div>
               <div onClick={(e) => handleBookmarkClick(e)}>
                 <FaBookmark size={24} color={isBookmarked ? "yellow" : "white"} />
