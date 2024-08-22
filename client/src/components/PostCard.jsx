@@ -154,7 +154,7 @@ const PostCard = ({ post, userId }) => {
                 {likesValue > 0 && <div>{likesValue}</div>}
               </div>
               <div onClick={(e) => handleBookmarkClick(e)}>
-                <FaBookmark size={24} color={isBookmarked ? "blue" : "white"} />
+                <FaBookmark size={24} color={isBookmarked ? "yellow" : "white"} />
               </div>
             </div>
           </div>

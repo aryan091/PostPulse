@@ -15,6 +15,7 @@ const NotFound = () => {
     src={BG_URL}
     alt="Bg-Image"
     className="w-full h-full object-cover"
+    loading="lazy"
   />
 
   <div className='absolute w-full top-28 md:top-64 p-8  bg-black bg-opacity-50 h-80 md:h-44'>

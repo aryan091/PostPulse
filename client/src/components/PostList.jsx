@@ -64,6 +64,7 @@ const PostList = () => {
             src={BG_URL}
             alt="Bg-Image"
             className="w-full h-full object-cover"
+            loading="lazy"
           />
         </div>
 

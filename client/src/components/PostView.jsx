@@ -63,6 +63,7 @@ const PostView = () => {
             src={BG_URL}
             alt="Bg-Image"
             className="h-full w-screen object-cover"
+            loading="lazy"
           />
         </div>
 
