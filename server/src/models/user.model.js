@@ -15,6 +15,10 @@ const userSchema = new mongoose.Schema({
       type: String,
       required: true,
     },
+    avatar: {
+      type: String, 
+      required: [true,'Avatar is required']
+  },
     bookmarks: [
       {
         type: mongoose.Schema.Types.ObjectId,
