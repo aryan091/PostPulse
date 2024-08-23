@@ -9,13 +9,15 @@ import { setMyPosts  } from '../slice/postSlice';
 import { setBookmarks } from '../slice/postSlice';
 import { FiMenu, FiX } from 'react-icons/fi';
 import { IoLogInOutline } from "react-icons/io5";
+import{ AVATAR_URL } from '../utils/constants';
 
 const Header = () => {
   const user = localStorage.getItem('token');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();  // Add this line to get the current location
-  const { setId, setUsername, setIsUserLoggedIn , setEmail } = useContext(UserContext);
+  const { setId, setUsername, setIsUserLoggedIn , setEmail , setAvatar , avatar } = useContext(UserContext);
+  
 
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
@@ -88,6 +90,7 @@ const Header = () => {
     setId(null);
     setUsername(null);
     setEmail(null);
+    setAvatar(null);
     dispatch(removeUser());
     setIsDropdownOpen(false);
     navigate('/');
@@ -105,8 +108,19 @@ const Header = () => {
 
 
   return (
-    <div className='fixed top-0 left-0 w-full p-4 mb-4 z-40 flex flex-col md:flex-row justify-between items-center bg-gradient-to-b from-black to-transparent'>
+    <div className='fixed top-0 left-0 z-40 flex flex-col items-center justify-between w-full p-4 mb-4 md:flex-row bg-gradient-to-b from-black to-transparent'>
+      <div className='flex items-center justify-between gap-8'>
       <Link to='/'><h1 className='text-3xl font-bold text-white '>PostPulse</h1></Link>
+{user &&(
+  <div className="block w-10 h-10 rounded-full md:hidden">
+  <img
+    src={avatar ? avatar : AVATAR_URL }
+    alt="Profile Pic"
+    className="w-full h-full rounded-full"
+  />
+  </div>
+)}
+      </div>
 
       {user && (
         <>
@@ -117,29 +131,45 @@ const Header = () => {
             </button>
           </div>
 
+
           {/* Dropdown Menu */}
           <div className={`${isDropdownOpen ? 'block' : 'hidden'} md:flex justify-around items-center gap-4`}>
-            <button className='py-2 px-4 text-white bg-transparent rounded-md font-semibold' onClick={handleCreateTaskClick}>Create</button>
-            <button className='py-2 px-4 text-white bg-transparent rounded-md font-semibold' onClick={handleMyPostsClick}>My Posts</button>
-            <button className='py-2 px-4 text-white bg-transparent rounded-md font-semibold' onClick={handleBookmarkClick}>Bookmark</button>
-            <button className='py-2 px-4 text-white bg-transparent rounded-md font-semibold' onClick={handleLogOut}><IoLogInOutline color='white' size={20} />
+          
+            <button className='px-4 py-2 font-semibold text-white bg-transparent rounded-md' onClick={handleCreateTaskClick}>Create</button>
+            <button className='px-4 py-2 font-semibold text-white bg-transparent rounded-md' onClick={handleMyPostsClick}>My Posts</button>
+            <button className='px-4 py-2 font-semibold text-white bg-transparent rounded-md' onClick={handleBookmarkClick}>Bookmark</button>
+            <button className='px-4 py-2 font-semibold text-white bg-transparent rounded-md' onClick={handleLogOut}><IoLogInOutline color='white' size={20} />
             </button>
           </div>
-
-          {/* Search Bar */}
+          <div className='flex gap-4'>
+               {/* Search Bar */}
           {!isPostDetailPage && (
-            <div className='text-white flex gap-4 mt-4 md:mt-0'>
-              <label htmlFor="search" className='text-white font-semibold'>Search</label>
+            <div className='flex gap-4 mt-4 text-white md:mt-0'>
+              <label htmlFor="search" className='font-semibold text-white'>Search</label>
               <input
                 type="text"
                 id="search"
-                className='px-4 text-white border border-white bg-transparent rounded-md'
+                className='px-4 text-white bg-transparent border border-white rounded-md'
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by Title"
               />
             </div>
+
+
+            
+            
           )}
+
+<div className="hidden w-10 h-10 rounded-full md:block">
+<img
+    src={avatar ? avatar : AVATAR_URL }
+    alt="Profile Pic"
+  className="w-full h-full rounded-full"
+/>
+</div>
+          </div>
+       
         </>
       )}
 { !user && (
@@ -150,8 +180,8 @@ const Header = () => {
           </div>
           
 <div className={`${isDropdownOpen ? 'block' : 'hidden'} md:flex justify-around items-center gap-4`}>
-<button className='py-2 px-4 text-white bg-transparent rounded-md font-semibold' onClick={handleRegisterClick}>Register</button>
-<button className='py-2 px-4 text-white bg-transparent rounded-md font-semibold' onClick={handleLoginClick}>Login</button>
+<button className='px-4 py-2 font-semibold text-white bg-transparent rounded-md' onClick={handleRegisterClick}>Register</button>
+<button className='px-4 py-2 font-semibold text-white bg-transparent rounded-md' onClick={handleLoginClick}>Login</button>
 </div>
 </>
 )}

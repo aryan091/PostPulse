@@ -162,9 +162,9 @@ const PostCard = ({ post }) => {
       ) : (
         <>
           <div
-            className="absolute inset-0 transition-transform duration-300 ease-in-out bg-cover bg-center group-hover:scale-110"
+            className="absolute inset-0 transition-transform duration-300 ease-in-out bg-center bg-cover group-hover:scale-110"
             style={{ 
-              backgroundImage: `url(${post.imageUrl})`,
+              backgroundImage: `url(${post.imageAvatar})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               zIndex: -1
@@ -172,26 +172,26 @@ const PostCard = ({ post }) => {
           />
           {post.addedBy === id && (
             <>
-              <button className="absolute top-2 left-3 z-20" onClick={handleDelete}>
+              <button className="absolute z-20 top-2 left-3" onClick={handleDelete}>
                 <RiDeleteBin6Fill size={24} color="red" />
               </button>
-              <button className="absolute top-2 right-2 z-20" onClick={handleEditClick}>
+              <button className="absolute z-20 top-2 right-2" onClick={handleEditClick}>
                 <FaEdit size={24} color="white" />
               </button>
             </>
           )}
-          <div className="relative z-10 bottom-2 left-0 right-0 p-4 bg-gradient-to-b from-black rounded-b-md">
+          <div className="relative left-0 right-0 z-10 p-4 bottom-2 bg-gradient-to-b from-black rounded-b-md">
             <h1 className="text-[2rem] font-bold text-white mt-60 line-clamp-1 overflow-hidden">{post.heading}</h1>
-            <p className="text-white h-12 mt-2 line-clamp-2 overflow-hidden font-semibold">
+            <p className="h-12 mt-2 overflow-hidden font-semibold text-white line-clamp-2">
               {post.description}
             </p>
-            <p className='text-white font-semibold mt-8'>Published on {date}</p>
-            <div className="text-white flex justify-between mt-2">
-              <div className="flex flex-row gap-2 items-center">
+            <p className='mt-8 font-semibold text-white'>Published on {date}</p>
+            <div className="flex justify-between mt-2 text-white">
+              <div className="flex flex-row items-center gap-2">
                 <button onClick={(e) => handleLikeClick(e)}>
                   {isLiked ? <FcLike size={24} /> : <FcLikePlaceholder size={24} />}
                 </button>
-                {likesValue > 0 && <div className="text-white font-bold">{likesValue}</div>}
+                {likesValue > 0 && <div className="font-bold text-white">{likesValue}</div>}
               </div>
               <div onClick={(e) => handleBookmarkClick(e)}>
                 <FaBookmark size={24} color={isBookmarked ? "yellow" : "white"} />

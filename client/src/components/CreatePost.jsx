@@ -1,33 +1,44 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import usePostApi from "../hooks/usePostApi"; // Import the custom hook
+import usePostApi from "../hooks/usePostApi";
 
 const CreatePost = ({ closeModal }) => {
   const titleRef = useRef(null);
   const descriptionRef = useRef(null);
-  const imageUrlRef = useRef(null);
+  const imageRef = useRef(null);
+  const [imagePreview, setImagePreview] = useState("");
   const { state } = useLocation();
   const navigate = useNavigate();
-
-  const { savePost, error, setError } = usePostApi(); // Use the custom hook
+  const { savePost, error, setError } = usePostApi();
 
   useEffect(() => {
     if (state?.post) {
       titleRef.current.value = state?.post?.heading;
       descriptionRef.current.value = state?.post?.description;
-      imageUrlRef.current.value = state?.post?.imageUrl;
+      if (state?.post?.imageAvatar) {
+        setImagePreview(state?.post?.imageAvatar); // Set the image preview from URL
+      }
     }
   }, [state?.post]);
 
+  const handleImageChange = () => {
+    const file = imageRef.current.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result); // Set preview to new image
+      };
+      reader.readAsDataURL(file);
+    } 
+    // If no file selected, retain existing preview (do nothing here)
+  };
+
   const validateFields = () => {
-    if (
-      !titleRef.current.value.trim() ||
-      !descriptionRef.current.value.trim() ||
-      !imageUrlRef.current.value.trim()
-    ) {
-      return false;
-    }
-    return true;
+    return (
+      titleRef.current.value.trim() &&
+      descriptionRef.current.value.trim() &&
+      (imagePreview || imageRef.current.files[0])
+    );
   };
 
   const handleSavePost = async (event) => {
@@ -35,27 +46,33 @@ const CreatePost = ({ closeModal }) => {
 
     if (!validateFields()) {
       setError("All fields are required");
-    } else {
-      setError("");
-      const post = {
-        heading: titleRef.current.value,
-        description: descriptionRef.current.value,
-        imageUrl: imageUrlRef.current.value,
-      };
-
-      await savePost(post, state?.post?._id); // Use savePost from the hook
-      closeModal();
-      navigate("/posts");
+      return;
     }
+
+    setError("");
+    const formData = new FormData();
+    formData.append("heading", titleRef.current.value);
+    formData.append("description", descriptionRef.current.value);
+
+    if (imageRef.current.files[0]) {
+      formData.append("imageAvatar", imageRef.current.files[0]);
+    } else if (state?.post?.imageAvatar) {
+      // Keep the existing image URL on update if no new image is selected
+      formData.append("existingImageAvatar", state?.post?.imageAvatar);
+    }
+
+    await savePost(formData, state?.post?._id); // Use savePost from the hook
+    closeModal();
+    navigate("/");
   };
 
   return (
-    <div className="task-modal fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-      <div className="task-modal-content bg-black bg-opacity-70 rounded-lg shadow-lg w-[350px] h-[596px] p-6 flex flex-col justify-between relative sm:w-[644px]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50 task-modal">
+      <div className="task-modal-content bg-black bg-opacity-70 rounded-lg shadow-lg w-[350px] h-[596px] p-6 flex flex-col justify-between relative sm:w-[644px] overflow-hidden">
         <form className="flex flex-col flex-grow" onSubmit={handleSavePost}>
           <div className="flex-grow">
-            <div className="task-title mb-4">
-              <label className="block text-white text-sm font-bold mb-2" htmlFor="title">
+            <div className="mb-4 task-title">
+              <label className="block mb-2 text-sm font-bold text-white" htmlFor="title">
                 Title <span className="text-red-500">*</span>
               </label>
               <input
@@ -63,12 +80,12 @@ const CreatePost = ({ closeModal }) => {
                 type="text"
                 placeholder="Enter Post Title"
                 ref={titleRef}
-                className="task-title-input shadow appearance-none border rounded w-full py-2 px-3 bg-black bg-opacity-70 text-white font-semibold leading-tight focus:outline-none focus:shadow-outline"
+                className="w-full px-3 py-2 font-semibold leading-tight text-white bg-black border rounded shadow appearance-none task-title-input bg-opacity-70 focus:outline-none focus:shadow-outline"
               />
             </div>
 
-            <div className="task-description mb-4">
-              <label className="block text-white text-sm font-bold mb-2" htmlFor="description">
+            <div className="mb-4 task-description">
+              <label className="block mb-2 text-sm font-bold text-white" htmlFor="description">
                 Description <span className="text-red-500">*</span>
               </label>
               <input
@@ -76,31 +93,36 @@ const CreatePost = ({ closeModal }) => {
                 type="text"
                 placeholder="Enter Post Description"
                 ref={descriptionRef}
-                className="task-description-input shadow appearance-none border rounded w-full py-2 px-3 bg-black bg-opacity-70 text-white font-semibold leading-tight focus:outline-none focus:shadow-outline"
+                className="w-full px-3 py-2 font-semibold leading-tight text-white bg-black border rounded shadow appearance-none task-description-input bg-opacity-70 focus:outline-none focus:shadow-outline"
               />
             </div>
 
-            <div className="task-description mb-4">
-              <label className="block text-white text-sm font-bold mb-2" htmlFor="imageUrl">
-                Image URL <span className="text-red-500">*</span>
+            <div className="mb-4 task-image">
+              <label className="block mb-2 text-sm font-bold text-white" htmlFor="imageUrl">
+                Image <span className="text-red-500">*</span>
               </label>
               <input
                 id="imageUrl"
-                type="text"
-                placeholder="Enter Image URL"
-                ref={imageUrlRef}
-                className="task-imageUrl-input shadow appearance-none border rounded w-full py-2 px-3 bg-black text-white font-semibold bg-opacity-70 leading-tight focus:outline-none focus:shadow-outline"
+                type="file"
+                ref={imageRef}
+                onChange={handleImageChange}
+                className="w-full px-3 py-2 font-semibold leading-tight text-white bg-black border rounded shadow appearance-none task-image-input bg-opacity-70 focus:outline-none focus:shadow-outline"
               />
+              {imagePreview && (
+                <div className="mt-2 image-preview-container">
+                  <img src={imagePreview} alt="Preview" className="image-preview" />
+                </div>
+              )}
             </div>
           </div>
 
           {error && (
-            <div className="text-red-500 text-sm font-bold text-center mb-4">
+            <div className="mb-4 text-sm font-bold text-center text-red-500">
               {error}
             </div>
           )}
 
-          <div className="task-modal-actions mt-4">
+          <div className="mt-4 task-modal-actions">
             <div className="task-modal-buttons flex gap-4 sm:gap-[17rem]">
               <button
                 type="button"
@@ -111,7 +133,7 @@ const CreatePost = ({ closeModal }) => {
               </button>
               <button
                 type="submit"
-                className="task-save w-40 h-11 bg-transparent border border-solid border-white text-white py-2 px-4 rounded-xl focus:outline-none focus:shadow-outline shadow-lg font-bold"
+                className="w-40 px-4 py-2 font-bold text-white bg-transparent border border-white border-solid shadow-lg task-save h-11 rounded-xl focus:outline-none focus:shadow-outline"
               >
                 {state?.post ? "Update" : "Create"}
               </button>

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 const useFetchUser = (userId) => {
-  const [user, setUser] = useState({ name: "", email: "" });
+  const [user, setUser] = useState({ name: "", email: "" , avatar:"" });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,6 +18,7 @@ const useFetchUser = (userId) => {
         setUser({
           name: response.data.data.name,
           email: response.data.data.email,
+          avatar: response.data.data.avatar,
         });
       } catch (error) {
         console.error(error);

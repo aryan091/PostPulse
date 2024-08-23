@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import Header from "./Header";
-import { BG_URL, AVATAR_URL } from "../utils/constants";
+import { BG_URL, AVATAR_URL , BG_CARD_URL } from "../utils/constants";
 import { formatDate } from "../utils/helper";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -48,7 +48,7 @@ const PostView = () => {
     return <div>Redirecting to posts...</div>;
   }
 
-  const { createdAt, heading, description, imageUrl } = post;
+  const { createdAt, heading, description, imageAvatar } = post;
   const date = formatDate(createdAt);
 
   return (
@@ -60,36 +60,36 @@ const PostView = () => {
           <img
             src={BG_URL}
             alt="Bg-Image"
-            className="h-full w-screen object-cover"
+            className="object-cover w-screen h-full"
             loading="lazy"
           />
         </div>
 
-        { postLoadingState ? <ShimmerView /> :(<div className="relative z-10 bg-black bg-opacity-70 md:mx-auto h-full md:h-3/4 top-20 text-white w-screen md:w-4/5 shadow-2xl rounded-lg">
-          <div className="w-full h-1/4 md:h-full flex flex-col">
+        { postLoadingState ? <ShimmerView /> :(<div className="relative z-10 w-screen h-full text-white bg-black rounded-lg shadow-2xl bg-opacity-70 md:mx-auto md:h-3/4 top-20 md:w-4/5">
+          <div className="flex flex-col w-full h-1/4 md:h-full">
             <div className="w-full h-96">
               <img
-                src={imageUrl}
+                src={imageAvatar ? imageAvatar : BG_CARD_URL}
                 alt="Post Image"
-                className="w-full h-full object-fill rounded-lg"
+                className="object-fill w-full h-full rounded-lg"
               />
             </div>
 
-            <div className="h-full w-full p-4 md:p-8">
+            <div className="w-full h-full p-4 md:p-8">
 
             <div className={`text-white flex justify-between ${!isUserLoggedIn ? 'flex-row-reverse' : ''} mt-2 gap-4 md:gap-0`}>
 
-              { isUserLoggedIn &&(<div className="flex flex-row gap-2 items-center">
-                <div className="rounded-full w-10 h-10">
+              { isUserLoggedIn &&(<div className="flex flex-row items-center gap-2">
+                <div className="w-10 h-10 rounded-full">
                   <img
-                    src={AVATAR_URL}
-                    alt=""
-                    className="rounded-full w-full h-full"
+                    src={user?.avatar ? user?.avatar : AVATAR_URL}
+                    alt="Profile Image"
+                    className="w-full h-full rounded-full"
                   />
                 </div>
                 <div>
-                  <div className="text-white font-bold">{user?.name}</div>
-                  <div className="text-white font-semibold">
+                  <div className="font-bold text-white">{user?.name}</div>
+                  <div className="font-semibold text-white">
                     {user?.email}
                   </div>
                 </div>
@@ -97,7 +97,7 @@ const PostView = () => {
 )}
 
 <div>
-<p className="text-white  font-semibold mt-2">
+<p className="mt-2 font-semibold text-white">
                   Published on {date}
                 </p>
               </div>
@@ -106,7 +106,7 @@ const PostView = () => {
               <h1 className="text-[2rem] font-bold text-white mt-4 md:mt-8">
                 {heading}
               </h1>
-              <p className="text-white mt-2 md:mt-4 text-justify">
+              <p className="mt-2 text-justify text-white md:mt-4">
                 {description}
               </p>
             </div>
@@ -116,8 +116,8 @@ const PostView = () => {
 
 
 
-          <div className="p-4 bg-gray-800 text-white bg-opacity-70">
-            <h2 className="text-xl font-bold mb-4">Comments</h2>
+          <div className="p-4 text-white bg-gray-800 bg-opacity-70">
+            <h2 className="mb-4 text-xl font-bold">Comments</h2>
             <div className="mb-4">
               {loading ? (
                 <ShimmerComment />
@@ -127,9 +127,9 @@ const PostView = () => {
                 commentsFromStore?.map((comment) => (
                   <div
                     key={comment?._id}
-                    className="mb-4 p-2 border-b border-gray-600"
+                    className="p-2 mb-4 border-b border-gray-600"
                   >
-                    <div className="flex justify-end gap-2 z-20">
+                    <div className="z-20 flex justify-end gap-2">
       {isUserLoggedIn && (
         <>
           <button
@@ -152,26 +152,26 @@ const PostView = () => {
     </div>
 
                     <div>
-                      <div className="flex flex-row gap-2 items-center">
-                        <div className="rounded-full w-10 h-10">
+                      <div className="flex flex-row items-center gap-2">
+                        <div className="w-10 h-10 rounded-full">
                           <img
-                            src={AVATAR_URL}
+                            src={comment?.commentedBy?.avatar ? comment?.commentedBy?.avatar : AVATAR_URL}
                             alt=""
-                            className="rounded-full w-full h-full"
+                            className="w-full h-full rounded-full"
                           />
                         </div>
                         <div>
-                          <div className="text-white font-bold">
+                          <div className="font-bold text-white">
                             {comment?.commentedBy?.name}
                           </div>
-                          <div className="text-white text-sm font-semibold">
+                          <div className="text-sm font-semibold text-white">
                             {comment?.commentedBy?.email}
                           </div>
                         </div>
                       </div>
                     </div>
                     <p className="mt-4">{comment?.text}</p>
-                    <p className="text-sm text-end font-bold text-gray-400">
+                    <p className="text-sm font-bold text-gray-400 text-end">
                       Published on {formatDate(comment?.createdAt)}
                     </p>
                   </div>
@@ -181,14 +181,14 @@ const PostView = () => {
 
             <form onSubmit={(e) => handleCommentSubmit(e)}>
               <textarea
-                className="w-full p-2 mb-2 rounded bg-gray-700 text-white"
+                className="w-full p-2 mb-2 text-white bg-gray-700 rounded"
                 placeholder="Write a comment..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
               ></textarea>
               <button
                 type="submit"
-                className="mt-2 p-2 bg-transparent border border-gray-600 text-white rounded-md w-full"
+                className="w-full p-2 mt-2 text-white bg-transparent border border-gray-600 rounded-md"
               >
                 {editCommentId ? "Update Comment" : "Add Comment"}
               </button>

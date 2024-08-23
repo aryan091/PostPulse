@@ -12,22 +12,31 @@ export const useAuth = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { setId, setUsername, setIsUserLoggedIn , setEmail } = useContext(UserContext);
+  const { setId, setUsername, setIsUserLoggedIn , setEmail , setAvatar } = useContext(UserContext);
 
-  const register = async (name, email, password) => {
+  const register = async (formData) => {
     try {
       setLoading(true);
+  
+  
+  
       const reqUrl = `${import.meta.env.VITE_BACKEND_URL}/user/register`;
-      const response = await axios.post(reqUrl, { name, email, password });
+      const response = await axios.post(reqUrl, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+  
       toast.success(`${response.data.data.name} Registered Successfully!`);
       setLoading(false);
       setErrorMessage(null);
     } catch (error) {
+      console.log(error);
       setLoading(false);
       toast.error(error.response?.data?.message || "Registration failed");
       setErrorMessage(error.response?.data?.message || "Registration failed");
     }
   };
+  
+  
 
   const login = async (email, password) => {
     try {
@@ -45,6 +54,7 @@ export const useAuth = () => {
       setUsername(response.data.data.userData.name);
       setIsUserLoggedIn(true);
       setEmail(response.data.data.userData.email);
+      setAvatar(response.data.data.userData.avatar);
 
 
       toast.success(`${response.data.data.userData.name} Logged In Successfully!`);
@@ -52,6 +62,7 @@ export const useAuth = () => {
       setErrorMessage(null);
       navigate('/');
     } catch (error) {
+      console.log(" error",error);
       setLoading(false);
       toast.error(error?.response?.data?.message || "Login failed");
       setErrorMessage(error?.response?.data?.message || "Login failed");

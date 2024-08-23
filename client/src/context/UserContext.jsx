@@ -8,6 +8,8 @@ function UserContextProvider({ children }) {
   const [id, setId] = useState(null);
   const [email , setEmail] = useState(null);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+  const [avatar , setAvatar] = useState(null);
+
   const [loading, setLoading] = useState(true);
 
 
@@ -26,6 +28,8 @@ function UserContextProvider({ children }) {
           setId(response.data.data._id);
           setIsUserLoggedIn(true);
           setEmail(response.data.data.email);
+          setAvatar(response.data.data.avatar);
+
         }
       } catch (error) {
         console.error('Error fetching user profile:', error.response ? error.response.data.message : error.message);
@@ -40,8 +44,8 @@ function UserContextProvider({ children }) {
 
 
   return (
-    <UserContext.Provider value={{ username, setUsername, id, setId, isUserLoggedIn, setIsUserLoggedIn, loading , setLoading , email , setEmail }}>
-      {children}
+    <UserContext.Provider value={{ username, setUsername, id, setId, isUserLoggedIn, setIsUserLoggedIn, loading , setLoading , email , setEmail , avatar , setAvatar }}>
+            {children}
     </UserContext.Provider>
   );
 }

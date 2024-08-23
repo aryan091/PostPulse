@@ -19,19 +19,28 @@ const usePostApi = () => {
 
     try {
       const response = isUpdate
-        ? await axios.put(url, post)
-        : await axios.post(url, post);
+        ? await axios.put(url, post,{
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+        : await axios.post(url, post ,{
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
 
-      const savedPost = response.data.post;
+      console.log(response.data);
+
+      const savedPost = response.data.data.post;
       if (isUpdate) {
+        console.log("Updated post :", savedPost);
+
         dispatch(updatePost(savedPost));
         toast.success("Post updated successfully");
       } else {
+        console.log(savedPost);
         dispatch(addPost(savedPost));
         toast.success("Post created successfully");
       }
     } catch (error) {
-      console.error(error);
+      console.log("Update Post API :",error);
       setError(isUpdate ? "Failed to update post" : "Failed to create post");
       toast.error(isUpdate ? "Failed to update post" : "Failed to create post");
     }

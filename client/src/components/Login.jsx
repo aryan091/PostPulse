@@ -29,6 +29,7 @@ const Login = () => {
   const email = useRef(null);
   const password = useRef(null);
   const name = useRef(null);
+  const avatar = useRef(null); // Ref for avatar file input
 
   const token = localStorage.getItem('token');
 
@@ -59,66 +60,93 @@ const Login = () => {
     } else {
       message = checkValidData(name.current.value, email.current.value, password.current.value, isSignInForm);
     }
-
+  
     if (message) {
       setErrorMessage(message);
       return;
     }
-
+  
     setErrorMessage(''); // Clear any previous error message
-
+  
     try {
+     
+  
+  
       if (isSignInForm) {
+        console.log('Signing in...');
+        console.log(email.current.value, password.current.value);
         await login(email.current.value, password.current.value);
       } else {
-        await register(name.current.value, email.current.value, password.current.value);
+        const formData = new FormData();
+        formData.append('name', name?.current?.value);
+        formData.append('email', email.current.value);
+        formData.append('password', password.current.value);
+        
+        if (avatar.current && avatar.current.files[0]) {
+          formData.append('avatar', avatar.current.files[0]); // Add avatar to form data
+          console.log(formData.get('avatar')); // Should log the File object
+
+        } else {
+          setErrorMessage('Avatar is required.');
+          return;
+        }
+        await register(formData); // Pass formData to the register function
       }
     } catch (error) {
+      console.error(error);
       setErrorMessage('An error occurred. Please try again.');
     }
   };
-
+  
   return (
-    <div className="min-h-screen w-full overflow-x-hidden">
+    <div className="w-full min-h-screen overflow-x-hidden">
       <Header />
 
       <div className="fixed inset-0 z-0 w-full h-full">
         <img
           src={BG_URL}
           alt="Bg-Image"
-          className="w-full h-full object-cover"
+          className="object-cover w-full h-full"
           loading='lazy'
         />
       </div>
 
       <form onSubmit={(e) => e.preventDefault()} className="relative left-0 right-0 z-20 w-full p-4 mx-auto text-white bg-black bg-opacity-50 rounded-lg my-14 md:p-8 md:w-3/12 md:my-16">
-        <h1 className="font-bold text-3xl py-4">{isSignInForm ? 'Sign In' : 'Sign Up'}</h1>
+        <h1 className="py-4 text-3xl font-bold">{isSignInForm ? 'Sign In' : 'Sign Up'}</h1>
 
         {!isSignInForm && (
-          <input
-            type="text"
-            placeholder="Full Name"
-            ref={name}
-            className="p-4 my-4 w-full bg-transparent border border-gray rounded-lg"
-          />
+          <>
+            <input
+              type="text"
+              placeholder="Full Name"
+              ref={name}
+              className="w-full p-4 my-4 bg-transparent border rounded-lg border-gray"
+            />
+            <input
+              type="file"
+              ref={avatar} // Avatar input
+              className="w-full p-4 my-4 bg-transparent border rounded-lg border-gray"
+              accept="image/*"
+            />
+          </>
         )}
         <input
           type="text"
           placeholder="Email"
           ref={email}
-          className="p-4 my-4 w-full bg-transparent border border-gray rounded-lg"
+          className="w-full p-4 my-4 bg-transparent border rounded-lg border-gray"
         />
 
         <input
           type="password"
           placeholder="Password"
           ref={password}
-          className="p-4 my-4 w-full bg-transparent border border-gray rounded-lg"
+          className="w-full p-4 my-4 bg-transparent border rounded-lg border-gray"
         />
 
-        {errorMessage && <p className="text-red-500 text-center font-semibold py-2">{errorMessage}</p>}
+        {errorMessage && <p className="py-2 font-semibold text-center text-red-500">{errorMessage}</p>}
 
-        <button className="p-4 my-6 bg-red-700 w-full rounded-lg" onClick={handleButtonClick} disabled={loading}>
+        <button className="w-full p-4 my-6 bg-red-700 rounded-lg" onClick={handleButtonClick} disabled={loading}>
           {isSignInForm ? 'Sign In' : 'Sign Up'}
         </button>
 
@@ -129,9 +157,9 @@ const Login = () => {
           />
         )}
 
-        <p className="text-neutral-300 py-4">
+        <p className="py-4 text-neutral-300">
           {isSignInForm ? 'New to VerseVault?' : 'Already have an account?'}{' '}
-          <span className="text-white font-semibold cursor-pointer" onClick={toggleSignInForm}>
+          <span className="font-semibold text-white cursor-pointer" onClick={toggleSignInForm}>
             {isSignInForm ? 'Sign Up Now' : 'Sign In'}.
           </span>
         </p>
