@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 const mongoose = require("mongoose");
+const path = require('path');
+
 
 const userRoute = require('./src/routes/user.routes')
 const postRoute = require('./src/routes/post.routes')
@@ -20,6 +22,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/api/v1/user",userRoute)
 app.use("/api/v1/post",postRoute)
 app.use("/api/v1/comment",commentRoute)
+
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 
 app.get('/', (req, res) => {
