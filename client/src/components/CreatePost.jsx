@@ -105,7 +105,7 @@ const CreatePost = ({ closeModal }) => {
               <button
                 type="button"
                 className="task-cancel border border-solid border-[#CF3636] w-40 h-11 text-[#CF3636] py-2 px-4 rounded-xl focus:outline-none focus:shadow-outline font-bold shadow-lg"
-                onClick={() => navigate("/posts")}
+                onClick={() => navigate("/")}
               >
                 Cancel
               </button>
