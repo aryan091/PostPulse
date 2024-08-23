@@ -69,7 +69,7 @@ const PostList = () => {
         </div>
 
         {/* Post Cards or Shimmer */}
-        <div className="relative z-10 flex flex-wrap justify-center gap-4 py-20 px-4 mt-16">
+        <div className="relative z-10 flex flex-wrap justify-center gap-4 pt-[7rem] pb-[3rem] px-4 mt-[5.5rem]">
           {loading ? (
             Array(6).fill("").map((_, index) => <Shimmer key={index} />) // Show shimmer placeholders
           ) : postsToShow.length > 0 ? (
