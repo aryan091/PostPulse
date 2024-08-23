@@ -4,22 +4,38 @@ const apiResponse = require("../utils/apiResponse");
 const apiError = require("../utils/apiError");
 const Post = require("../models/post.model");
 const { decodeJwtToken } = require("../middlewares/verifyJwtToken");
+const { uploadOnCloudinary , deleteFromCloudinary} = require("../utils/cloudnary");
 
 const createPost = asyncHandler(async (req, res) => {
     try {
-        const { heading, description, imageUrl } = req.body;
+        const { heading, description} = req.body;
 
         // Validate the input fields
-        if (!heading || !description || !imageUrl) {
+        if (!heading || !description ) {
             throw new apiError(401, "All fields (heading, description, image URL) must be provided");
         }
 
         const userId = req.userId;
 
+        const imageAvatarLocalPath = req.files?.imageAvatar[0]?.path;
+
+    if (!imageAvatarLocalPath) {
+      throw new apiError(400, "Avatar is required");
+    }
+
+    // upload them to cloudinary, avatar
+
+    const imageAvatar = await uploadOnCloudinary(imageAvatarLocalPath);
+
+    if (!imageAvatar) {
+      throw new apiError(500, "Failed to upload avatar");
+    }
+
+
         const post = new Post({
             heading,
             description,
-            imageUrl,
+            imageAvatar: imageAvatar.url,
             addedBy: userId,
             
         });
@@ -131,36 +147,64 @@ const viewPost = asyncHandler(async (req, res) => {
 const updatePost = asyncHandler(async (req, res) => {
     try {
         const postId = req.params.postId;
-        const { heading, description, imageUrl } = req.body;
+        const { heading, description } = req.body;
 
-        if (!heading || !description || !imageUrl) {
-            throw new apiError(401, "Please provide all the required fields");
+        if (!heading || !description) {
+            throw new apiError(400, "Please provide all the required fields");
         }
 
         const post = await Post.findById(postId);
 
         if (!post) {
-            throw new apiError(401, "Post not found");
+            throw new apiError(404, "Post not found");
         }
 
-        post.heading = heading;
-        post.description = description;
-        post.imageUrl = imageUrl;
+        // Check if imageAvatar is present in files and is an array with at least one element
+        let imageAvatar = post.imageAvatar; // Keep the existing image if no new image is provided
+        if (req.files && req.files.imageAvatar && req.files.imageAvatar.length > 0) {
+            const imageAvatarLocalPath = req.files.imageAvatar[0].path;
 
-        await post.save();
+            if (!imageAvatarLocalPath) {
+                throw new apiError(400, "Image Avatar path is required");
+            }
+
+            if (imageAvatar) {
+                await deleteFromCloudinary(imageAvatar);
+            }
+
+            // Upload the image to Cloudinary
+            const uploadedImageAvatar = await uploadOnCloudinary(imageAvatarLocalPath);
+
+            if (!uploadedImageAvatar) {
+                throw new apiError(500, "Failed to upload image avatar");
+            }
+
+            imageAvatar = uploadedImageAvatar; // Update the image avatar if a new one is provided
+            console.log("Image avatar uploaded successfully:", imageAvatar.url);
+        }
+
+        const updatedPost = await Post.findByIdAndUpdate(
+            postId,
+            { heading, description, imageAvatar: imageAvatar.url },
+            { new: true, runValidators: true }
+          );
 
         return res.status(200).json(
             new apiResponse(
                 200,
-                { post },
+                { post: updatedPost },
                 "Post Updated Successfully",
                 true
             )
         );
     } catch (error) {
-        return res.status(401).json({ success: false, message: "Error while updating Post" });
+        console.error(error); // Use console.error for logging errors
+        return res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || "Error while updating Post"
+        });
     }
-});
+});;
 
 const deletePost = asyncHandler(async (req, res) => {
     try {

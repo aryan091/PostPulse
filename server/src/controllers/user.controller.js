@@ -5,61 +5,70 @@ const apiError = require("../utils/apiError")
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { decodeJwtToken  } = require("../middlewares/verifyJwtToken")
+const { uploadOnCloudinary } = require("../utils/cloudnary");
 
-const registerUser = asyncHandler( async (req , res) => {
-
+const registerUser = asyncHandler(async (req, res) => {
     try {
-        // get user details from frontend
-
-        const { name, email, password } = req.body
-    
-        // validation - not empty
-    
-        if (
-            [ name,email, password].some((field) => field?.trim() === "")
-        ) {
-            return res.status(401).json({ success: false, message: "All Fields are required" })        }
-    
-        // check if user already exists: email
-    
-        const existedUser = await User.findOne({ email })
-    
-        if(existedUser)
-        {
-            return res.status(401).json({ success: false, message: "User already exists" })
-        }
-    
-        const hashedPassword = await bcrypt.hashSync(password, 10);
-
-        const user = new User({ name,email, password: hashedPassword });
-        await user.save();
-            
-        // remove password and refresh token field from response
-    
-        const createdUser = await User.findById(user._id).select(
-            "-password "
-        )
-    
-        // check for user creation
-    
-        if(!createdUser)
-        {
-            return res.status(401).json({ success: false, message: "Failed to create user" })
-        }
-    
-        // return res
-    
-        return res.status(201).json(
-            new apiResponse(200,createdUser,"User registered Successfully", true) 
-        )
+      const { name, email, password } = req.body;
+  
+      if ([name, email, password].some((field) => field?.trim() === "")) {
+        return res
+          .status(401)
+          .json({ success: false, message: "All Fields are required" });
+      }
+  
+      const existedUser = await User.findOne({ email });
+  
+      if (existedUser) {
+        return res
+          .status(401)
+          .json({ success: false, message: "User already exists" });
+      }
+  
+      const hashedPassword = await bcrypt.hash(password, 10);
+  
+      // Check if an avatar file is uploaded
+      if (!req.file) {
+        return res.status(400).json({ success: false, message: "Avatar is required" });
+      }
+  
+      console.log(req.file);
+  
+      // Upload avatar to Cloudinary
+      const avatar = await uploadOnCloudinary(req.file.path);
+  
+      if (!avatar) {
+        throw new apiError(500, "Failed to upload avatar");
+      }
+  
+      const user = new User({
+        name,
+        email,
+        password: hashedPassword,
+        avatar: avatar.url,
+      });
+      await user.save();
+  
+      const createdUser = await User.findById(user._id).select("-password");
+  
+      if (!createdUser) {
+        return res
+          .status(401)
+          .json({ success: false, message: "Failed to create user" });
+      }
+  
+      return res
+        .status(201)
+        .json(
+          new apiResponse(200, createdUser, "User registered successfully", true)
+        );
     } catch (error) {
-      
-        return res.status(401).json({ success: false, message: "User registration failed" })
-
+      console.log(error);
+      return res
+        .status(401)
+        .json({ success: false, message: "User registration failed" });
     }
- 
-
-})
+  });
 
 const loginUser = asyncHandler( async (req , res) => {
     try {
