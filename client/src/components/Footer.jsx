@@ -24,7 +24,7 @@ const Footer = () => {
             Terms of Service
           </a>
         </div>
-        <div className="mt-4">
+        <div className="mt-4 flex justify-center gap-4">
         <FaLinkedin className='cursor-pointer hover:text-pink-500'  onClick={() => window.open('https://www.linkedin.com/in/aryandaftari/', '_blank')}/>
         <FaGithub className='cursor-pointer hover:text-pink-500' onClick={() => window.open('https://github.com/aryan091', '_blank')}/>
         <FaGlobe className='cursor-pointer hover:text-pink-500' onClick={() => window.open('https://portfolio-three-gules-82.vercel.app/', '_blank')}/>
