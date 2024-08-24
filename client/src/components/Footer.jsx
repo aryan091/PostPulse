@@ -1,4 +1,7 @@
 import React from "react";
+import {FaLinkedin} from 'react-icons/fa'
+import {FaGithub} from 'react-icons/fa'
+import { FaGlobe } from "react-icons/fa";
 
 const Footer = () => {
   return (
@@ -22,24 +25,9 @@ const Footer = () => {
           </a>
         </div>
         <div className="mt-4">
-          <a
-            href="https://twitter.com/yourcompany"
-            className="text-gray-400 hover:text-white mx-2"
-          >
-            Twitter
-          </a>
-          <a
-            href="https://facebook.com/yourcompany"
-            className="text-gray-400 hover:text-white mx-2"
-          >
-            Facebook
-          </a>
-          <a
-            href="https://instagram.com/yourcompany"
-            className="text-gray-400 hover:text-white mx-2"
-          >
-            Instagram
-          </a>
+        <FaLinkedin className='cursor-pointer hover:text-pink-500'  onClick={() => window.open('https://www.linkedin.com/in/aryandaftari/', '_blank')}/>
+        <FaGithub className='cursor-pointer hover:text-pink-500' onClick={() => window.open('https://github.com/aryan091', '_blank')}/>
+        <FaGlobe className='cursor-pointer hover:text-pink-500' onClick={() => window.open('https://portfolio-three-gules-82.vercel.app/', '_blank')}/>
         </div>
       </div>
     </footer>
