@@ -28,6 +28,7 @@ export const useAuth = () => {
       toast.success(`${response.data.data.name} Registered Successfully!`);
       setLoading(false);
       setErrorMessage(null);
+      navigate('/login', { state: { defaultSignIn: false } });
     } catch (error) {
       console.log(error);
       setLoading(false);

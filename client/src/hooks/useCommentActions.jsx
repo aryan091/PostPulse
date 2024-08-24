@@ -76,7 +76,8 @@ const useCommentActions = (postId) => {
           
           // Dispatch the new comment to the Redux store
           dispatch(addComment(response.data.data.comment));
-  
+          await fetchPostComments();
+
           toast.success("Comment added successfully");
         }
   

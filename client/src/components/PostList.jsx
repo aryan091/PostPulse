@@ -37,13 +37,12 @@ const PostList = () => {
       setShowMyPosts(false);
       setShowBookmarks(false);
     }
-  }, [location.pathname]);
+  }, [location.pathname , posts, myPosts, bookmarks]);
 
   useEffect(() => {
-    // Set loading to false once data is fetched
-    if (posts.length || myPosts.length || bookmarks.length) {
       setLoading(false);
-    }
+    
+    
   }, [posts, myPosts, bookmarks]);
 
   const closeModal = () => {
@@ -52,6 +51,8 @@ const PostList = () => {
 
   // Determine which posts to show
   const postsToShow = showMyPosts ? myPosts : showBookmarks ? bookmarks : posts;
+
+  console.log(postsToShow , loading);
 
   return (
     <>
