@@ -7,6 +7,7 @@ import { addPost, updatePost } from '../slice/postSlice';
 const usePostApi = () => {
   const [error, setError] = useState("");
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
 
   const savePost = async (post, postId = null) => {
     const isUpdate = !!postId;
@@ -17,6 +18,7 @@ const usePostApi = () => {
     const token = localStorage.getItem("token");
     axios.defaults.headers.common["Authorization"] = token;
 
+    setLoading(true);
     try {
       const response = isUpdate
         ? await axios.put(url, post,{
@@ -35,12 +37,11 @@ const usePostApi = () => {
         dispatch(updatePost(savedPost));
         toast.success("Post updated successfully");
       } else {
-        console.log(savedPost);
         dispatch(addPost(savedPost));
         toast.success("Post created successfully");
       }
     } catch (error) {
-      console.log("Update Post API :",error);
+      setLoading(false);
       setError(isUpdate ? "Failed to update post" : "Failed to create post");
       toast.error(isUpdate ? "Failed to update post" : "Failed to create post");
     }
@@ -50,6 +51,7 @@ const usePostApi = () => {
     savePost,
     error,
     setError,
+    loading
   };
 };
 

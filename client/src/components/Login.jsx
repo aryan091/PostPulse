@@ -1,25 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
 import Header from './Header';
 import Footer from './Footer';
-import { BG_URL } from '../utils/constants';
+import { BG_URL , LOADING_STYLE} from '../utils/constants';
 import { checkValidData } from '../utils/validate';
 import { useAuth } from '../hooks/useAuth'; 
 import { useNavigate, useLocation } from 'react-router-dom';
 import { PropagateLoader } from 'react-spinners'; 
 
-const loadingSpinnerStyles = {
-  position: "fixed",
-  top: 0,
-  left: 0,
-  width: "100vw",
-  height: "100vh",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  zIndex: 9999,
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  transform: "none"
-}
+
 
 const Login = () => {
   const location = useLocation();
@@ -153,7 +141,7 @@ const Login = () => {
         {loading && (
           <PropagateLoader
             color="#ffffff"
-            cssOverride={loadingSpinnerStyles}
+            cssOverride={LOADING_STYLE}
           />
         )}
 

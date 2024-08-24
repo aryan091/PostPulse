@@ -37,3 +37,21 @@ body, html {
   background-size: 1000px 100%;
   animation: shimmer 1.5s infinite;
 }
+
+/* Add this to your CSS file or Tailwind config */
+.task-modal-content {
+  overflow: hidden; /* Ensure modal content doesn’t overflow */
+}
+
+.image-preview-container {
+  max-height: 200px; /* Set a max height for the preview container */
+  overflow-y: auto; /* Add vertical scrollbar if content exceeds max height */
+  border: 1px solid #ddd; /* Optional border around the image preview */
+  padding: 5px; /* Optional padding */
+}
+
+.image-preview {
+  max-width: 100%; /* Ensure image does not exceed container width */
+  max-height: 100%; /* Ensure image does not exceed container height */
+  object-fit: cover; /* Cover the container while maintaining aspect ratio */
+}

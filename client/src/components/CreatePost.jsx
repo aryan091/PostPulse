@@ -1,6 +1,8 @@
 import React, { useRef, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import usePostApi from "../hooks/usePostApi";
+import { LOADING_STYLE } from "../utils/constants";
+import { PropagateLoader } from "react-spinners";
 
 const CreatePost = ({ closeModal }) => {
   const titleRef = useRef(null);
@@ -9,7 +11,7 @@ const CreatePost = ({ closeModal }) => {
   const [imagePreview, setImagePreview] = useState("");
   const { state } = useLocation();
   const navigate = useNavigate();
-  const { savePost, error, setError } = usePostApi();
+  const { savePost, error, setError , loading } = usePostApi();
 
   useEffect(() => {
     if (state?.post) {
@@ -19,6 +21,15 @@ const CreatePost = ({ closeModal }) => {
         setImagePreview(state?.post?.imageAvatar); // Set the image preview from URL
       }
     }
+
+    document.body.style.overflow = "hidden";
+
+    // Re-enable scrolling when the modal is closed
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+
+
   }, [state?.post]);
 
   const handleImageChange = () => {
@@ -29,7 +40,7 @@ const CreatePost = ({ closeModal }) => {
         setImagePreview(reader.result); // Set preview to new image
       };
       reader.readAsDataURL(file);
-    } 
+    }
     // If no file selected, retain existing preview (do nothing here)
   };
 
@@ -72,7 +83,10 @@ const CreatePost = ({ closeModal }) => {
         <form className="flex flex-col flex-grow" onSubmit={handleSavePost}>
           <div className="flex-grow">
             <div className="mb-4 task-title">
-              <label className="block mb-2 text-sm font-bold text-white" htmlFor="title">
+              <label
+                className="block mb-2 text-sm font-bold text-white"
+                htmlFor="title"
+              >
                 Title <span className="text-red-500">*</span>
               </label>
               <input
@@ -85,7 +99,10 @@ const CreatePost = ({ closeModal }) => {
             </div>
 
             <div className="mb-4 task-description">
-              <label className="block mb-2 text-sm font-bold text-white" htmlFor="description">
+              <label
+                className="block mb-2 text-sm font-bold text-white"
+                htmlFor="description"
+              >
                 Description <span className="text-red-500">*</span>
               </label>
               <input
@@ -98,7 +115,10 @@ const CreatePost = ({ closeModal }) => {
             </div>
 
             <div className="mb-4 task-image">
-              <label className="block mb-2 text-sm font-bold text-white" htmlFor="imageUrl">
+              <label
+                className="block mb-2 text-sm font-bold text-white"
+                htmlFor="imageUrl"
+              >
                 Image <span className="text-red-500">*</span>
               </label>
               <input
@@ -110,7 +130,11 @@ const CreatePost = ({ closeModal }) => {
               />
               {imagePreview && (
                 <div className="mt-2 image-preview-container">
-                  <img src={imagePreview} alt="Preview" className="image-preview" />
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="image-preview"
+                  />
                 </div>
               )}
             </div>
@@ -120,6 +144,10 @@ const CreatePost = ({ closeModal }) => {
             <div className="mb-4 text-sm font-bold text-center text-red-500">
               {error}
             </div>
+          )}
+
+          {loading && (
+            <PropagateLoader color="#ffffff" cssOverride={LOADING_STYLE} />
           )}
 
           <div className="mt-4 task-modal-actions">
