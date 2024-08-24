@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import usePostApi from "../hooks/usePostApi";
-import { LOADING_STYLE } from "../utils/constants";
+import { LIGHT_LOADING_STYLE } from "../utils/constants";
 import { PropagateLoader } from "react-spinners";
 
 const CreatePost = ({ closeModal }) => {
@@ -147,7 +147,7 @@ const CreatePost = ({ closeModal }) => {
           )}
 
           {loading && (
-            <PropagateLoader color="#ffffff" cssOverride={LOADING_STYLE} />
+            <PropagateLoader color="#ffffff" cssOverride={LIGHT_LOADING_STYLE} />
           )}
 
           <div className="mt-4 task-modal-actions">

@@ -9,7 +9,8 @@ import Footer from './Footer';
 import useFetchPosts from '../hooks/useFetchPosts';
 import useFetchMyPosts from '../hooks/useFetchMyPosts';
 import useFetchBookmarks from '../hooks/useFetchBookmarks';
-import Shimmer from './Shimmer';  // Import your Shimmer component
+import { PropagateLoader } from 'react-spinners'; // Import the PropagateLoader
+import { LOADING_STYLE } from '../utils/constants'; // Import LOADING_STYLE if you have custom styles
 
 const PostList = () => {
   const posts = useSelector((state) => state.post.posts);
@@ -20,7 +21,7 @@ const PostList = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showMyPosts, setShowMyPosts] = useState(false);
   const [showBookmarks, setShowBookmarks] = useState(false);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
 
   useFetchPosts(searchQuery);
   useFetchMyPosts(searchQuery);
@@ -37,12 +38,10 @@ const PostList = () => {
       setShowMyPosts(false);
       setShowBookmarks(false);
     }
-  }, [location.pathname , posts, myPosts, bookmarks]);
+  }, [location.pathname]);
 
   useEffect(() => {
-      setLoading(false);
-    
-    
+    setLoading(false);
   }, [posts, myPosts, bookmarks]);
 
   const closeModal = () => {
@@ -51,8 +50,6 @@ const PostList = () => {
 
   // Determine which posts to show
   const postsToShow = showMyPosts ? myPosts : showBookmarks ? bookmarks : posts;
-
-  console.log(postsToShow , loading);
 
   return (
     <>
@@ -69,10 +66,10 @@ const PostList = () => {
           />
         </div>
 
-        {/* Post Cards or Shimmer */}
+        {/* Post Cards or Loader */}
         <div className="relative z-10 flex flex-wrap justify-center gap-4 pt-[7rem] pb-[3rem] px-4 mt-[5.5rem]">
           {loading ? (
-            Array(6).fill("").map((_, index) => <Shimmer key={index} />) // Show shimmer placeholders
+            <PropagateLoader color="#ffffff" cssOverride={LOADING_STYLE} />
           ) : postsToShow.length > 0 ? (
             postsToShow.map((post) => (
               <Link to={`/post/${post?._id}`} key={post?._id}>
