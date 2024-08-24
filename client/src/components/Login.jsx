@@ -6,6 +6,7 @@ import { checkValidData } from '../utils/validate';
 import { useAuth } from '../hooks/useAuth'; 
 import { useNavigate, useLocation } from 'react-router-dom';
 import { PropagateLoader } from 'react-spinners'; 
+import { FaUpload } from "react-icons/fa"; 
 
 
 
@@ -18,6 +19,15 @@ const Login = () => {
   const password = useRef(null);
   const name = useRef(null);
   const avatar = useRef(null); // Ref for avatar file input
+
+  const [selectedFileName, setSelectedFileName] = useState(''); // State to hold the file name
+
+  const handleFileChange = (event) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setSelectedFileName(event.target.files[0].name); // Set the file name to state
+    }
+  };
+
 
   const token = localStorage.getItem('token');
 
@@ -110,12 +120,23 @@ const Login = () => {
               ref={name}
               className="w-full p-4 my-4 bg-transparent border rounded-lg border-gray"
             />
-            <input
-              type="file"
-              ref={avatar} // Avatar input
-              className="w-full p-4 my-4 bg-transparent border rounded-lg border-gray"
-              accept="image/*"
-            />
+           <label className="w-full p-4 my-4 bg-black bg-opacity-70 rounded-lg cursor-pointer flex items-center justify-between text-white">
+          <div className="flex items-center w-1/2">
+            <FaUpload className="mr-2" />
+            Choose File
+          </div>
+          <span className="ml-2 text-gray-300 line-clamp-1 w-1/2">
+            {selectedFileName || 'No file chosen'}
+          </span>
+          <input
+            type="file"
+            ref={avatar} // Avatar input
+            className="hidden"
+            accept="image/*"
+            onChange={handleFileChange} // Handle file selection
+          />
+        </label>
+
           </>
         )}
         <input

@@ -3,15 +3,17 @@ import { useNavigate, useLocation } from "react-router-dom";
 import usePostApi from "../hooks/usePostApi";
 import { LIGHT_LOADING_STYLE } from "../utils/constants";
 import { PropagateLoader } from "react-spinners";
+import { FaUpload } from "react-icons/fa"; 
 
 const CreatePost = ({ closeModal }) => {
   const titleRef = useRef(null);
   const descriptionRef = useRef(null);
   const imageRef = useRef(null);
   const [imagePreview, setImagePreview] = useState("");
+  const [fileName, setFileName] = useState("No file chosen");
   const { state } = useLocation();
   const navigate = useNavigate();
-  const { savePost, error, setError , loading } = usePostApi();
+  const { savePost, error, setError, loading } = usePostApi();
 
   useEffect(() => {
     if (state?.post) {
@@ -24,24 +26,23 @@ const CreatePost = ({ closeModal }) => {
 
     document.body.style.overflow = "hidden";
 
-    // Re-enable scrolling when the modal is closed
     return () => {
       document.body.style.overflow = "auto";
     };
-
-
   }, [state?.post]);
 
   const handleImageChange = () => {
     const file = imageRef.current.files[0];
     if (file) {
+      setFileName(file.name);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result); // Set preview to new image
       };
       reader.readAsDataURL(file);
+    } else {
+      setFileName("No file chosen");
     }
-    // If no file selected, retain existing preview (do nothing here)
   };
 
   const validateFields = () => {
@@ -68,11 +69,10 @@ const CreatePost = ({ closeModal }) => {
     if (imageRef.current.files[0]) {
       formData.append("imageAvatar", imageRef.current.files[0]);
     } else if (state?.post?.imageAvatar) {
-      // Keep the existing image URL on update if no new image is selected
       formData.append("existingImageAvatar", state?.post?.imageAvatar);
     }
 
-    await savePost(formData, state?.post?._id); // Use savePost from the hook
+    await savePost(formData, state?.post?._id);
     closeModal();
     navigate("/");
   };
@@ -121,13 +121,25 @@ const CreatePost = ({ closeModal }) => {
               >
                 Image <span className="text-red-500">*</span>
               </label>
-              <input
-                id="imageUrl"
-                type="file"
-                ref={imageRef}
-                onChange={handleImageChange}
-                className="w-full px-3 py-2 font-semibold leading-tight text-white bg-black border rounded shadow appearance-none task-image-input bg-opacity-70 focus:outline-none focus:shadow-outline"
-              />
+              <div className="flex items-center">
+                <label
+                  htmlFor="imageUrl"
+                  className="custom-file-button text-white bg-gray-700 px-4 py-2 rounded-lg cursor-pointer flex items-center"
+                >
+                  <FaUpload className="mr-2" /> {/* Upload icon inside the button */}
+                  Choose File
+                </label>
+                <input
+                  id="imageUrl"
+                  type="file"
+                  ref={imageRef}
+                  onChange={handleImageChange}
+                  className="hidden" /* Hidden actual file input */
+                />
+                <span className="ml-3 text-sm font-semibold text-white">
+                  {fileName}
+                </span>
+              </div>
               {imagePreview && (
                 <div className="mt-2 image-preview-container">
                   <img
